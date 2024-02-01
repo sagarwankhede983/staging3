@@ -1,0 +1,1094 @@
+<?php
+
+namespace App\Http\Controllers;
+use DB;
+use PDF;
+use MYSQLI;
+use Session;
+use Illuminate\Http\Request;
+
+class TodayMenuController extends Controller
+{
+    //after login first process
+    public function bypass(Request $request){
+        $emailf=$request['email'];
+        $passwordf=$request['password'];
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "kingranchum";
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+        }
+        $sql1 = "SELECT * from USERS WHERE EMAIL='$emailf' ";
+        $verifyResult = $conn->query($sql1);
+        
+         if ($verifyResult->num_rows > 0) {
+            $fetched_row = $verifyResult->fetch_assoc();
+           // return $fetched_row;
+            $decryptedpassword=decrypt($fetched_row['PASSWORD']);
+           // dd($decryptedpassword);
+            $id=$fetched_row['ID'];
+            $uname=$fetched_row['NAME'];
+            if($fetched_row['EMAIL']==$emailf && $passwordf==$decryptedpassword)
+            {
+                if($fetched_row['FIRST_TIME_FLAG']=="Y")
+            {
+                $massage="Matched";
+                session()->put('useremail',$emailf);
+                session()->put('userrole',$fetched_row['ROLE']);
+                session()->put('sub_role',$fetched_row['SUBROLE']);
+                session()->put('id',$id);
+                session()->put('uname',$uname);
+                session()->save();
+
+               if($fetched_row['SUBROLE']!="Hunting-Reservation")
+               {
+                $conn->close();
+                $todayDate=date('m-d-Y');
+                // $todayDate='05-10-2019';
+                $data=DB::Select("select sum(event_count) as eventcount,start_datetime from(Select sum(eventcount) as event_count,start_datetime,cat_event_type from(Select COUNT(distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vce.cat_event_type as cat_event_type from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where vci.item_type='Meal' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY'),vce.event_id,vce.cat_event_type) Group by start_datetime,cat_event_type) Group By start_datetime");
+                $breakfast=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+                from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci 
+                on vcs.item_id=vci.item_id where vce.cat_event_type='Breakfast' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' 
+                and vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");  
+                $lunch=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+                from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+                vcs.item_id=vci.item_id where vce.cat_event_type='Lunch' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+                vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");   
+                $dinner=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+                from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+                vcs.item_id=vci.item_id where vce.cat_event_type='Dinner' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+                vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");   
+                $appetizer=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+                from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+                vcs.item_id=vci.item_id where vce.cat_event_type='Cocktails' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+                vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");  
+                $appetizer_first_item_count=DB::Select(" Select distinct vcs.folio_id,vcs.item_id,vcs.qty from dev.vr_CAT_EVENT vce inner join 
+                    dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where  TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate'  and
+                    vce.cat_event_type='Cocktails' and vci.item_type='Meal' Order by vcs.folio_id");
+
+                $data_ar = json_decode(json_encode($data),true);
+                $breakfast_ar = json_decode(json_encode($breakfast),true);
+                $lunch_ar = json_decode(json_encode($lunch),true);
+                $dinner_ar = json_decode(json_encode($dinner),true);
+                $appetizer_ar=json_decode(json_encode($appetizer),true);
+                $appetizer_first_item_count_ar=json_decode(json_encode($appetizer_first_item_count),true);
+                $index_app_first_item=0;
+                $previous_fid="";
+                $total_count_app_first_item=0;
+                foreach($appetizer_first_item_count_ar as $id=>$data)
+                {
+                    $fid=$appetizer_first_item_count_ar[$index_app_first_item]['folio_id'];
+                    $qty=$appetizer_first_item_count_ar[$index_app_first_item]['qty'];
+                    if($previous_fid!=$fid)
+                    {
+                        $total_count_app_first_item=$total_count_app_first_item+$qty;
+                        $previous_fid=$fid;
+                    }
+                    $index_app_first_item=$index_app_first_item+1;
+                }
+                if(!empty($data))
+                {
+                $todaymenu=$data_ar[0]['eventcount'];
+                }
+                else{
+                $todaymenu=0;
+                }
+                if(!empty($breakfast))
+                {
+                $todaybreakfast=$breakfast_ar[0]['eventcount'];
+                }
+                else{
+                $todaybreakfast=0;
+                }
+                if(!empty($lunch))
+                {
+                $todaylunch=$lunch_ar[0]['eventcount'];
+                }
+                else{
+                $todaylunch=0;
+                }
+                if(!empty($dinner))
+                {
+                $todaydinner=$dinner_ar[0]['eventcount'];
+                }
+                else{
+                $todaydinner=0;
+                }
+                if(!empty($appetizer)){
+                $todayappetizer=$appetizer_ar[0]['eventcount'];
+                }
+                else{
+                $todayappetizer=0;
+                }
+
+                if(!empty($appetizer_first_item_count)){
+                $appetizer_first_item=$total_count_app_first_item;
+                }
+                else{
+                $appetizer_first_item=0;
+                }
+                $event_data=DB::Select("select count(distinct vce.event_id) as count,vce.cat_event_type from dev.vr_cat_event vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vci.item_id=vcs.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vci.item_type='Meal' group by vce.cat_event_type");
+                $event_list_ar = json_decode(json_encode($event_data),true);
+                $todays_event_data=DB::Select("Select sum(itemcount) as count,cat_event_type from(Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,
+                cat_event_type from(Select distinct vcs.folio_id,vce.cat_event_type,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+                TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on 
+                vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate'
+                and vci.item_type='Meal') Group By item_id,item_category,item_name,start_datetime,cat_event_type) Group by cat_event_type");
+                $todays_event_data_ar = json_decode(json_encode($todays_event_data),true);
+                $datatodayevent=DB::Select("select sum(eventcount) as event_count,start_datetime,cat_event_type from(Select COUNT(distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vce.cat_event_type as cat_event_type from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where vci.item_type='Meal' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY'),vce.event_id,vce.cat_event_type) Group by start_datetime,cat_event_type");  
+                $datatodayevent_ar = json_decode(json_encode($datatodayevent),true);
+
+
+
+                return view('home',compact('todayDate','todaymenu','todaybreakfast','todaylunch','todaydinner','event_list_ar','todays_event_data_ar','todayappetizer','datatodayevent_ar','appetizer_first_item'));
+        
+
+               }
+               else{
+               // sagar
+                $value = session()->get('id');
+                if($value!=""){
+                    $todayDate=date('m-d-Y');
+                    $todayHuntingEventNum=DB::Select("Select count(ec) as count from (Select COUNT(vce.event_id) as ec,vce.event_id,vce.cat_event_type from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where To_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and vci.item_type='Guide' group by vce.event_id,vce.cat_event_type)");
+                    $todayHuntingEventNum_ar = json_decode(json_encode($todayHuntingEventNum),true);
+        
+                    $todayGuidedEventNum=DB::Select("Select Count(cm) as count from (Select COUNT(distinct vce.event_id) as cm from 
+                    dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id inner join dev.vr_cat_items vci 
+                    on vcs.item_id=vci.item_id where To_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+                    vce.cat_event_type LIKE '%Hunting%' and vci.item_name NOT LIKE '%(Unassigned)%' and vci.item_type='Guide'
+                    group by vce.event_id)");
+                    $todayGuidedEventNum_ar = json_decode(json_encode($todayGuidedEventNum),true);
+                    $todayGuideUnassignedEventNum=DB::Select("Select Count(cm) as count from (Select COUNT(distinct vce.event_id) as cm from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where To_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and vci.item_name LIKE '%(Unassigned)%' and vci.item_type='Guide' group by vce.event_id)");
+                    $todayGuideUnassignedEventNum_ar=json_decode(json_encode($todayGuideUnassignedEventNum),true);
+        
+                    $totalNumGuide=DB::Select("Select Count(distinct item_id) as count from dev.vr_cat_items where 
+                    item_type='Guide' and item_name NOT LIKE '%(Unassigned)%'");
+                    $totalNumGuide_ar = json_decode(json_encode($totalNumGuide),true);
+        
+                    $totalAsignedGuide=DB::Select("Select COUNT(DISTINCT vci.item_id) as count from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id
+                    inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and
+                    vci.item_type='Guide' and vci.item_name NOT LIKE '%(Unassigned)%'");
+                    $totalAsignedGuide_ar=json_decode(json_encode($totalAsignedGuide),true);
+        
+                    $todayHuntingEventInfo=DB::Select(" Select vce.event_id,vce.cat_event_type,vci.item_name,vcs.item_id,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vc.name from 
+                    dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id inner join dev.vr_customers vc on vcs.folio_customer_id=vc.customer_id where 
+                    To_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' ");
+                    $todayHuntingEventInfo_ar = json_decode(json_encode($todayHuntingEventInfo),true);
+        
+                    $totalAsignedGuideInfo=DB::Select("Select distinct vci.item_id,vci.item_name,vce.name,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id
+                    inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and
+                    vci.item_type='Guide' and vci.item_name NOT LIKE '%(Unassigned)%'");
+                    $totalAsignedGuideInfo_ar=json_decode(json_encode($totalAsignedGuideInfo),true);
+        
+                    $totalUnasignedGuideInfo=DB::Select("Select distinct vci.item_id,vci.item_name from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id
+                    inner join dev.vr_cat_items vci on vcs.item_id!=vci.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and
+                    vci.item_type='Guide' and vci.item_name NOT LIKE '%(Unassigned)%'");
+                    $totalUnasignedGuideInfo_ar=json_decode(json_encode($totalUnasignedGuideInfo),true);
+        
+                    return view('GuideReservationHunting.homeForReservation',compact('todayHuntingEventNum_ar','todayGuidedEventNum_ar','totalNumGuide_ar','totalAsignedGuide_ar','todayHuntingEventInfo_ar','totalAsignedGuideInfo_ar','totalUnasignedGuideInfo_ar','todayDate','todayGuideUnassignedEventNum_ar'));
+                }
+                else{
+                  return view('auth/login');  
+                }
+               }
+                   } 
+       
+                else
+                {
+                    //First time user login
+                    return view('changeFirstTimePassword',compact('id'));
+                }  
+            }
+           else{
+               $massage="Incorrect Username or Password.";
+               return view('Auth/loginerror',compact('massage'));
+            }
+        } 
+        else {
+            $conn->close();
+            $massage="User not found";
+            return view('Auth/loginerror',compact('massage'));
+        }               
+    }
+    //Get Detail For All Today's Menu
+    public function getDetailForAllTodayMenu()
+    {
+        $value = session()->get('id');
+        if($value!=""){
+            $todayDate=date('m-d-Y');
+        $dataoftodaysitemstocook=DB::Select("Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,
+            cat_event_type,item_desc from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,
+            vci.item_category,vce.cat_event_type as cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY HH24:MI:SS') as start_time from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs 
+            on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where 
+            TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and vci.item_type='Meal') Group By item_name,item_id,item_desc,
+            item_category,start_datetime,cat_event_type Order By cat_event_type");
+        $dataoftodaysitemstocook_ar = json_decode(json_encode($dataoftodaysitemstocook),true);
+        return view('TodayMenu/todaymenu',compact('dataoftodaysitemstocook_ar','todayDate'));
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    //Get Todays breakfast details
+    public function getDetailForAllTodayBreakfast()
+    {
+        $value = session()->get('id');
+        if($value!=""){
+            $todayDate=date('m-d-Y');
+        // $todayDate='05-10-2019';
+        $breakfast=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+            from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+            vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+            vce.cat_event_type='Breakfast' and vci.item_type='Meal') Group By item_category,item_name,
+            start_datetime,item_id,item_desc");
+        $breakfast_ar = json_decode(json_encode($breakfast),true);
+        return view('TodayMenu/todaybreakfast',compact('breakfast_ar'));
+        }
+        else{
+          return view('auth/login');  
+        }   
+    }
+     //Get Todays Lunch Details
+    public function getDetailForAllTodayLunch()
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $todayDate=date('m-d-Y');
+        // $todayDate='05-10-2019';
+        $lunch=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+            from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+            vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+            vce.cat_event_type='Lunch' and vci.item_type='Meal') Group By item_category,item_name,
+            start_datetime,item_id,item_desc");
+        $lunch_ar = json_decode(json_encode($lunch),true);
+        return view('TodayMenu/todaylunch',compact('lunch_ar'));
+        }
+        else{
+          return view('auth/login');  
+        }  
+    }
+     //Get Todays Dinner details
+    public function getDetailForAllTodayDinner()
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $todayDate=date('m-d-Y');
+        $dinner=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+            from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+            vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+            vce.cat_event_type='Dinner' and vci.item_type='Meal') Group By item_category,item_name,
+            start_datetime,item_id,item_desc");
+        $dinner_ar = json_decode(json_encode($dinner),true);
+        return view('TodayMenu/todaydinner',compact('dinner_ar'));
+        }
+        else{
+          return view('auth/login');  
+        }  
+    }
+    //Get Todays Appetizer Details
+    public function getDetailForAllTodayAppetizer()
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $todayDate=date('m-d-Y');
+        // $todayDate='05-10-2019';
+        $appetizer=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+            from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+            vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+            vce.cat_event_type='Cocktails' and vci.item_type='Meal') Group By item_category,item_name,
+            start_datetime,item_id,item_desc");
+        $appetizer_ar = json_decode(json_encode($appetizer),true);
+        return view('TodayMenu/todayappetizer',compact('appetizer_ar'));
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    //Get Todays Other Event Details
+    public function getDetailForAllTodayOtherEvents(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+            $todayDate=date('m-d-Y');
+        // $todayDate='05-10-2019';
+        $event_type=$request['event_type'];
+        $event_info=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+            from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+            vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+            vce.cat_event_type='$event_type' and vci.item_type='Meal') Group By item_category,item_name,
+            start_datetime,item_id,item_desc");
+        $event_info_ar = json_decode(json_encode($event_info),true);
+      //  return $event_info_ar;
+        return view('TodayMenu/todayotherevent',compact('event_info_ar','event_type'));
+        }
+        else{
+          return view('auth/login');  
+        }  
+    }
+    //Get On date Menu
+    public function openPageForOnDateMenu()
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $date=date('m-d-Y');
+        $dataoftodaysitemstocook=DB::Select("Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,cat_event_type,item_desc
+        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,vce.cat_event_type as cat_event_type,
+        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime,TO_CHAR(vce.start_datetime,'MM-DD-YYYY HH24:MI:SS') as start_time
+        from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+        vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$date' and vci.item_type='Meal') 
+        Group By item_name,item_id,item_category,start_datetime,cat_event_type,item_desc Order By cat_event_type");
+        $dataoftodaysitemstocook_ar = json_decode(json_encode($dataoftodaysitemstocook),true);
+        $itemcountforgraph=DB::Select("Select sum(itemcount) as count,cat_event_type from(Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,cat_event_type 
+        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,vce.cat_event_type as cat_event_type,
+        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime,TO_CHAR(vce.start_datetime,'MM-DD-YYYY HH24:MI:SS') as start_time from 
+        dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id 
+        where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$date' and vci.item_type='Meal') Group By item_name,item_id,item_category,start_datetime,
+        cat_event_type Order By cat_event_type)Group By cat_event_type");
+        $itemcountforgraph_ar = json_decode(json_encode($itemcountforgraph),true);
+        return view('OnDateMenu/ondatemenu',compact('dataoftodaysitemstocook_ar','date','itemcountforgraph_ar'));
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    //Get On date menu after change date from same date
+    public function openPageForOnDateMenu2(Request $request)
+    {
+            $value = session()->get('id');
+            if($value!="")
+            {
+                $date=$request['filterdate'];
+                $dataoftodaysitemstocook=DB::Select("Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,cat_event_type,item_desc
+                from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,vce.cat_event_type as cat_event_type,
+                TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime,TO_CHAR(vce.start_datetime,'MM-DD-YYYY HH24:MI:SS') as start_time
+                from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+                vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$date' and vci.item_type='Meal') 
+                Group By item_name,item_id,item_category,start_datetime,cat_event_type,item_desc Order By cat_event_type");
+
+                $dataoftodaysitemstocook_ar = json_decode(json_encode($dataoftodaysitemstocook),true);
+                // return $dataoftodaysitemstocook_ar;
+                $itemcountforgraph=DB::Select("Select sum(itemcount) as count,cat_event_type from(Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,cat_event_type 
+                from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,vce.cat_event_type as cat_event_type,
+                TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime,TO_CHAR(vce.start_datetime,'MM-DD-YYYY HH24:MI:SS') as start_time from 
+                dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id 
+                where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$date' and vci.item_type='Meal') Group By item_name,item_id,item_category,start_datetime,
+                cat_event_type Order By cat_event_type)Group By cat_event_type");
+                $itemcountforgraph_ar = json_decode(json_encode($itemcountforgraph),true);
+
+                return view('OnDateMenu/ondatemenu',compact('dataoftodaysitemstocook_ar','date','itemcountforgraph_ar'));
+            }
+            else
+            {
+              return view('auth/login');  
+            }
+    }
+    //Get On Date menu from calender or weekly menu from
+    public function openPageForOnDateMenu3(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $date=$request['filterdate'];
+        $date=date('m-d-Y',strtotime($date));
+        $type=$request['type'];
+        if($type=="Other"){
+                $data=DB::Select("Select sum(qty) as eventcount,item_id,item_category,item_name,start_datetime,item_desc 
+        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs 
+        on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where 
+        TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$date' and vce.cat_event_type IS NULL and vci.item_type='Meal')
+        Group By item_id,item_name,item_desc,item_category,start_datetime");
+        }else{
+                $data=DB::Select("Select sum(qty) as eventcount,item_id,item_category,item_name,start_datetime,item_desc 
+        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs 
+        on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where 
+        TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$date' and vce.cat_event_type='$type' and vci.item_type='Meal')
+        Group By item_id,item_name,item_desc,item_category,start_datetime");
+        }
+        $data_ar = json_decode(json_encode($data),true);
+        return view('OnDateMenu/ondatemenufromcalender',compact('data_ar','date','type'));
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    //Calender opens
+    public function weklyMenus(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+
+        return view('WeeklyMenu/weeklymenu');
+        }
+        else{
+          return view('auth/login');  
+        }   
+    }
+    // view Item Detail Form
+    public function openViewDetail(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $item_id=$request['item_id'];
+        $date=$request['start_datetime'];
+        $dateArray=(explode(" ",$date));
+        $dateSingle=$dateArray[0];
+        $item_name=$request['item_name'];
+        $item_desc=$request['item_desc'];
+        if($item_desc!="NA"){    
+        $data=DB::Select("select distinct vce.event_id,(vcs.qty) as itemcount,TO_CHAR(start_datetime,'MM-DD-YYYY') As dateofevent,
+        TO_CHAR(start_datetime,'HH24:MI:HH') As eventstarttime,TO_CHAR(end_datetime,'HH24:MI:HH')As eventendtime,vce.event_id,vce.cat_event_type,
+        vc.name,vce.room,vcs.item_id,vc.customer_id,vci.item_name from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs 
+        on vce.event_id=vcs.folio_id inner join dev.vr_customers vc on vcs.folio_customer_id=vc.customer_id inner join 
+        dev.vr_CAT_ITEMS vci on vcs.item_id=vci.item_id where vcs.item_id='$item_id' and vcs.item_desc='$item_desc' and vci.item_name='$item_name' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$date' ");
+        //return $data;
+        }
+        else{
+          $data=DB::Select("select distinct vce.event_id,(vcs.qty) as itemcount,TO_CHAR(start_datetime,'MM-DD-YYYY') As dateofevent,
+        TO_CHAR(start_datetime,'HH24:MI:HH') As eventstarttime,TO_CHAR(end_datetime,'HH24:MI:HH')As eventendtime,vce.event_id,vce.cat_event_type,
+        vc.name,vce.room,vcs.item_id,vc.customer_id,vci.item_name from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs 
+        on vce.event_id=vcs.folio_id inner join dev.vr_customers vc on vcs.folio_customer_id=vc.customer_id inner join 
+        dev.vr_CAT_ITEMS vci on vcs.item_id=vci.item_id where vcs.item_id='$item_id' and vci.item_name='$item_name' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$date' ");  
+        }
+        $data_ar = json_decode(json_encode($data),true);
+        return view('viewitemDetailPage',compact('data_ar'));
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    //View Customer detail from Item detail Form
+    public function openCustomerDetail(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $customer_id=$request['customer_id'];
+        $date=$request['date'];
+        $customer_data=DB::Select("Select DISTINCT(vce.event_id),vc.name,vce.room,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vce.cat_event_type,TO_CHAR(vce.start_datetime,'HH24:MI:SS') As start_time,vce.qty_est,vce.qty_gtd,TO_CHAR(vce.end_datetime,'HH24:MI:SS') As end_time from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vcs.folio_id=vce.event_id inner join dev.vr_CUSTOMERS vc on vcs.folio_customer_id=vc.customer_id where vc.customer_id='$customer_id' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$date' order by start_time");
+        $customer_data_ar = json_decode(json_encode($customer_data),true);
+        $customer_event_data=DB::Select("Select distinct vcs.item_id,vcs.item_desc,vcs.qty,vce.event_id,vc.name,vce.room,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vce.cat_event_type,TO_CHAR(vce.start_datetime,'HH24:MI:SS') As start_time,vce.qty_est,vci.item_name,vce.qty_gtd,TO_CHAR(vce.end_datetime,'HH24:MI:SS') As end_time from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vcs.folio_id=vce.event_id inner join dev.vr_CUSTOMERS vc on vcs.folio_customer_id=vc.customer_id inner join dev.vr_CAT_ITEMS vci on vcs.item_id=vci.item_id where vc.customer_id='$customer_id' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$date' Order by vce.cat_event_type,start_time");
+        $customer_event_data_ar = json_decode(json_encode($customer_event_data),true);
+        $customer_on_date=DB::Select("Select DISTINCT(TO_CHAR(vce.start_datetime,'MM-DD-YYYY')) As alldates from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vce.event_id=vcs.folio_id inner join dev.vr_CUSTOMERS vc on vcs.folio_customer_id=vc.customer_id where vc.customer_id='$customer_id'");
+        $customer_on_date_ar = json_decode(json_encode($customer_on_date),true);
+        //return($customer_on_date_ar);
+        return view('customerdetail/customerdetailtabularview',compact('customer_data_ar','customer_event_data_ar','date','customer_on_date_ar','customer_id'));
+        }
+        else{
+          return view('auth/login');  
+        }   
+    }
+    public function openCustomerDetailOnDate(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+                    $customer_id=$request['customer_id'];
+        $date=$request['date'];
+        $customer_data=DB::Select("Select DISTINCT(vce.event_id),vc.name,vce.room,TO_CHAR(vce.START_DATETIME,'DD-MM-YYYY') As start_datetime,vce.cat_event_type,TO_CHAR(vce.start_datetime,'HH24:MI:SS') As start_time,vce.qty_est,vce.qty_gtd,TO_CHAR(vce.end_datetime,'HH24:MI:SS') As end_time from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vcs.folio_id=vce.event_id inner join dev.vr_CUSTOMERS vc on vcs.folio_customer_id=vc.customer_id where vc.customer_id='$customer_id' and TO_CHAR(vce.start_datetime,'DD-MM-YYYY')='$date' order by start_time");
+        $customer_data_ar = json_decode(json_encode($customer_data),true);
+        $customer_event_data=DB::Select("Select distinct vcs.item_id,vcs.item_desc,vcs.qty,vce.event_id,vc.name,vce.room,TO_CHAR(vce.START_DATETIME,'DD-MM-YYYY') As start_datetime,vce.cat_event_type,TO_CHAR(vce.start_datetime,'HH24:MI:SS') As start_time,vce.qty_est,vci.item_name,vce.qty_gtd,TO_CHAR(vce.end_datetime,'HH24:MI:SS') As end_time from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vcs.folio_id=vce.event_id inner join dev.vr_CUSTOMERS vc on vcs.folio_customer_id=vc.customer_id inner join dev.vr_CAT_ITEMS vci on vcs.item_id=vci.item_id where vc.customer_id='$customer_id' and TO_CHAR(vce.start_datetime,'DD-MM-YYYY')='$date' Order by vce.cat_event_type,start_time");
+        $customer_event_data_ar = json_decode(json_encode($customer_event_data),true);
+         $customer_on_date=DB::Select("Select DISTINCT(TO_CHAR(vce.start_datetime,'DD-MM-YYYY')) As alldates from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vce.event_id=vcs.folio_id inner join dev.vr_CUSTOMER vc on vcs.folio_customer_id=vc.customer_id where vc.customer_id='$customer_id'");
+         $customer_on_date_ar = json_decode(json_encode($customer_on_date),true);
+        //return($customer_on_date_ar);
+        return view('customerdetail/customerdetailtabularview',compact('customer_data_ar','customer_event_data_ar','date','customer_on_date_ar','customer_id'));
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    public function export_pdf()
+    {  
+        $value = session()->get('id');
+        if($value!=""){
+            // Send data to the view using loadView function of PDF facade
+      $data[]=["h","i"];
+      $pdf = PDF::loadView('customerdetail.customerdetailDownload',$data);
+      // If you want to store the generated pdf to the server then you can use the store function
+      $pdf->save(storage_path().'_filename.pdf');
+      // Finally, you can download the file using download function
+      return $pdf->download('customers.pdf');
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    public function itemPage(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+                    $item_data=DB::Select("Select COUNT(vci.item_id) As count,vci.item_category,vci.item_id, vci.item_name,vci.item_category,vci.charge_code,TO_CHAR(vce.start_datetime,'HH24:MI:SS') AS eventstartat,TO_CHAR(vce.end_datetime,'HH24:MI:SS') AS eventendat From dev.vr_CAT_ITEMS vci inner join dev.vr_CAT_SALES vcs on vcs.item_id=vci.item_id inner join dev.vr_CAT_EVENT vce on vcs.folio_id=vce.event_id inner join dev.vr_CUSTOMER vc on vc.customer_id=vcs.folio_customer_id where vci.item_type='Meal' Group By vci.item_id,vci.item_category,vci.item_name,vci.item_category,vci.charge_code,vce.start_datetime,vce.end_datetime");
+        $item_list_ar = json_decode(json_encode($item_data),true);
+        $item_data_ar="";
+        $selected_id="";
+        // return $item_list_ar;
+        return view('itempage',compact('item_data_ar','item_list_ar','selected_id'));
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    public function itemRefreshPage(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $selected_id=$request['item_id'];
+        $item_list=DB::Select("Select COUNT(vci.item_id) As count,vci.item_category,vci.item_id, vci.item_name,vci.item_category,vci.charge_code,TO_CHAR(vce.start_datetime,'HH24:MI:SS') AS eventstartat,TO_CHAR(vce.end_datetime,'HH24:MI:SS') AS eventendat From dev.vr_CAT_ITEMS vci inner join dev.vr_CAT_SALES vcs on vcs.item_id=vci.item_id inner join dev.vr_CAT_EVENT vce on vcs.folio_id=vce.event_id inner join dev.vr_CUSTOMER vc on vc.customer_id=vcs.folio_customer_id where vci.item_type='Meal' Group By vci.item_id,vci.item_category,vci.item_name,vci.item_category,vci.charge_code,vce.start_datetime,vce.end_datetime");
+        $item_data=DB::Select("Select COUNT(vci.item_id) As count,vci.item_category,vci.item_id, vci.item_name,vci.item_category,vci.charge_code,TO_CHAR(vce.start_datetime,'HH24:MI:SS') AS eventstartat,TO_CHAR(vce.end_datetime,'HH24:MI:SS') AS eventendat From dev.vr_CAT_ITEMS vci inner join dev.vr_CAT_SALES vcs on vcs.item_id=vci.item_id inner join dev.vr_CAT_EVENT vce on vcs.folio_id=vce.event_id inner join dev.vr_CUSTOMER vc on vc.customer_id=vcs.folio_customer_id where TO_CHAR(vce.start_datetime,'DD-MM-YYYY')='31-08-2019' and vci.item_id='$selected_id' Group By vci.item_id,vci.item_name,vci.item_category,vci.charge_code,vce.start_datetime,vce.end_datetime");
+        $item_data_ar = json_decode(json_encode($item_data),true);
+        $item_list_ar = json_decode(json_encode($item_list),true);
+        return view('itempage',compact('item_data_ar','item_list_ar','selected_id'));
+        }
+        else{
+          return view('auth/login');  
+        }
+    }
+    //Today Event Detail
+    public function eventsDetail(Request $request){
+        $value = session()->get('id');
+        if($value!=""){
+            $todayDate=date('m-d-Y');
+        $event_data=DB::Select("Select TO_CHAR(start_datetime,'MM-DD-YYYY') as date_value,TO_CHAR(start_datetime,'HH24:MI:SS') as start_time,TO_CHAR(end_datetime,'HH24:MI:SS') as end_time,event_id,room,cat_event_type,name from dev.vr_CAT_EVENT where TO_CHAR(start_datetime,'MM-DD-YYYY')='$todayDate'");
+        $event_data_ar = json_decode(json_encode($event_data),true);
+        return view('Events.todaysEvents',compact('event_data_ar'));
+        }
+        else{
+          return view('auth/login');  
+        }   
+    }
+    public function customerDetail(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+            $customer_detail=DB::Select("Select DISTINCT(vr.customer_id),vr.name,vr.home_phone,vr.email_address,vce.start_datetime,GROUP_CONCAT(vce.cat_event_type) As event_type FROM dev.vr_Customer vr inner join dev.vr_CAT_SALES vcs on vr.customer_id=vcs.folio_customer_id inner join dev.vr_CAT_EVENT vce on vcs.folio_id=vce.event_id where TO_CHAR(vce.start_datetime,'DD-MM-YYYY')='31-08-2019' GROUP BY vr.customer_id");
+        $customer_detail_ar=json_decode(json_encode($customer_detail),true);
+        return view('customerdetail.todayscustomers',compact('customer_detail_ar'));
+        }
+        else{
+          return view('auth/login');  
+        }  
+    }
+    public function dashboardOnDateChange(Request $request)
+    {
+            $value = session()->get('id');
+            if($value!=""){
+            $currentdate=date('m-d-Y');
+            $todayDate=$request['filterdate'];
+            $data=DB::Select("select sum(event_count) as eventcount,start_datetime from(Select sum(eventcount) as event_count,start_datetime,cat_event_type from(Select COUNT(distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vce.cat_event_type as cat_event_type from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where vci.item_type='Meal' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY'),vce.event_id,vce.cat_event_type) Group by start_datetime,cat_event_type) Group By start_datetime"); 
+            $breakfast=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+            from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci 
+            on vcs.item_id=vci.item_id where vce.cat_event_type='Breakfast' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' 
+            and vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");  
+            $lunch=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+            from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+            vcs.item_id=vci.item_id where vce.cat_event_type='Lunch' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+            vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");   
+            $dinner=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+            from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+            vcs.item_id=vci.item_id where vce.cat_event_type='Dinner' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+            vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");   
+            $appetizer=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+            from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+            vcs.item_id=vci.item_id where vce.cat_event_type='Cocktails' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+            vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')"); 
+            $appetizer_first_item_count=DB::Select(" Select distinct vcs.folio_id,vcs.item_id,vcs.qty from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where  TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate'  and
+            vce.cat_event_type='Cocktails' and vci.item_type='Meal' Order by vcs.folio_id"); 
+            $data_ar = json_decode(json_encode($data),true);
+            $breakfast_ar = json_decode(json_encode($breakfast),true);
+            $lunch_ar = json_decode(json_encode($lunch),true);
+            $dinner_ar = json_decode(json_encode($dinner),true);
+            $appetizer_ar=json_decode(json_encode($appetizer),true);
+            $appetizer_first_item_count_ar=json_decode(json_encode($appetizer_first_item_count),true);
+            $index_app_first_item=0;
+            $previous_fid="";
+            $total_count_app_first_item=0;
+            foreach($appetizer_first_item_count_ar as $id=>$data)
+            {
+            $fid=$appetizer_first_item_count_ar[$index_app_first_item]['folio_id'];
+            $qty=$appetizer_first_item_count_ar[$index_app_first_item]['qty'];
+            if($previous_fid!=$fid)
+            {
+            $total_count_app_first_item=$total_count_app_first_item+$qty;
+            $previous_fid=$fid;
+            }
+            $index_app_first_item=$index_app_first_item+1;
+            }
+            if(!empty($data))
+            {
+            $todaymenu=$data_ar[0]['eventcount'];
+            }
+            else{
+            $todaymenu=0;
+            }
+            if(!empty($breakfast))
+            {
+            $todaybreakfast=$breakfast_ar[0]['eventcount'];
+            }
+            else{
+            $todaybreakfast=0;
+            }
+            if(!empty($lunch))
+            {
+            $todaylunch=$lunch_ar[0]['eventcount'];
+            }
+            else{
+            $todaylunch=0;
+            }
+            if(!empty($dinner))
+            {
+            $todaydinner=$dinner_ar[0]['eventcount'];
+            }
+            else{
+            $todaydinner=0;
+            }
+            if(!empty($appetizer)){
+            $todayappetizer=$appetizer_ar[0]['eventcount'];
+            }
+            else{
+            $todayappetizer=0;
+            }
+
+            if(!empty($appetizer_first_item_count)){
+            $appetizer_first_item=$total_count_app_first_item;
+            }
+            else{
+            $appetizer_first_item=0;
+            }
+
+            $event_data=DB::Select("select count(distinct vce.event_id) as count,vce.cat_event_type from dev.vr_cat_event vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vci.item_id=vcs.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vci.item_type='Meal' group by vce.cat_event_type");
+            $event_list_ar = json_decode(json_encode($event_data),true);
+            $todays_event_data=DB::Select("Select sum(itemcount) as count,cat_event_type from(Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,
+            cat_event_type from(Select distinct vcs.folio_id,vce.cat_event_type,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on 
+            vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate'
+            and vci.item_type='Meal') Group By item_id,item_category,item_name,start_datetime,cat_event_type) Group by cat_event_type");
+            $todays_event_data_ar = json_decode(json_encode($todays_event_data),true);
+            $datatodayevent=DB::Select("select sum(eventcount) as event_count,start_datetime,cat_event_type from(Select COUNT(distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vce.cat_event_type as cat_event_type from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where vci.item_type='Meal' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY'),vce.event_id,vce.cat_event_type) Group by start_datetime,cat_event_type");  
+            $datatodayevent_ar = json_decode(json_encode($datatodayevent),true);
+            if($todayDate==$currentdate)
+            {
+            return view('home',compact('todayDate','todaymenu','todaybreakfast','todaylunch','todaydinner','event_list_ar','todays_event_data_ar','todayappetizer','datatodayevent_ar','appetizer_first_item'));
+            }
+            else{
+            return view('homeondatechange',compact('todayDate','todaymenu','todaybreakfast','todaylunch','todaydinner','event_list_ar','todays_event_data_ar','todayappetizer','datatodayevent_ar','appetizer_first_item'));
+            }
+
+            // return view('home',compact('todayDate','todaymenu','event_list_ar','todays_event_data_ar','datatodayevent_ar'));
+
+            }
+            else{
+            return view('auth/login');  
+            }
+    }
+    // On Dashboard change all events and menus
+    public function onDateAllMenu(Request $request)
+    {
+        $value = session()->get('id');
+            if($value!=""){
+                    $todayDate=$request['date'];
+        $dataoftodaysitemstocook=DB::Select("Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,cat_event_type,item_desc
+                        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,vce.cat_event_type as cat_event_type,
+                        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime,TO_CHAR(vce.start_datetime,'MM-DD-YYYY HH24:MI:SS') as start_time
+                        from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+                        vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and vci.item_type='Meal') 
+                        Group By item_name,item_id,item_desc,item_category,start_datetime,cat_event_type Order By cat_event_type");
+            $dataoftodaysitemstocook_ar = json_decode(json_encode($dataoftodaysitemstocook),true);
+            return view('TodayMenu/todaymenu',compact('dataoftodaysitemstocook_ar','todayDate'));
+            }
+            else{
+              return view('auth/login');  
+            }
+    }
+    // On Dashboard Change Breakfast
+    public function onDateAllBreakfast(Request $request)
+    {
+        $value = session()->get('id');
+            if($value!=""){
+        $todayDate=$request['date'];
+        $breakfast=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+        dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+        vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+        vce.cat_event_type='Breakfast' and vci.item_type='Meal') Group By item_category,item_name,
+        start_datetime,item_id,item_desc");
+            $breakfast_ar = json_decode(json_encode($breakfast),true);
+            return view('TodayMenu/todaybreakfast',compact('breakfast_ar'));
+            }
+            else{
+              return view('auth/login');  
+            }
+    }
+    // On dashboard Chnage Dinner
+    public function onDateAllDinner(Request $request)
+    {
+        $value = session()->get('id');
+            if($value!=""){
+                $todayDate=$request['date'];
+        $dinner=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+        dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+        vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+        vce.cat_event_type='Dinner' and vci.item_type='Meal') Group By item_category,item_name,
+        start_datetime,item_id,item_desc");
+            $dinner_ar = json_decode(json_encode($dinner),true);
+           // return $dinner_ar;
+            return view('TodayMenu/todaydinner',compact('dinner_ar'));
+            }
+            else{
+              return view('auth/login');  
+            }
+    }
+    // On dashboard Change Lunch
+    public function onDateAllLunch(Request $request)
+    {
+        $value = session()->get('id');
+            if($value!=""){
+
+        $todayDate=$request['date'];
+         $lunch=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+        dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+        vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+        vce.cat_event_type='Lunch' and vci.item_type='Meal') Group By item_category,item_name,
+        start_datetime,item_id,item_desc");
+            $lunch_ar = json_decode(json_encode($lunch),true);
+            return view('TodayMenu/todaylunch',compact('lunch_ar'));
+            }
+            else{
+              return view('auth/login');  
+            }
+    }
+    // On Dashboard Chnage Appetizer
+    public function onDateAllAppetizer(Request $request)
+    {
+        $value = session()->get('id');
+        if($value!=""){
+        $todayDate=$request['date'];
+        $appetizer=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+        from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+        TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+        dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+        vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+        vce.cat_event_type='Cocktails' and vci.item_type='Meal') Group By item_category,item_name,
+        start_datetime,item_id,item_desc");
+            $appetizer_ar = json_decode(json_encode($appetizer),true);
+            return view('TodayMenu/todayappetizer',compact('appetizer_ar'));
+            } 
+        else{
+          return view('auth/login');  
+        }
+    }
+    // On Dashboard Change Other Events
+    public function onDateAllOtherEvent(Request $request){
+            $value = session()->get('id');
+                if($value!=""){
+            $todayDate=$request['date'];
+            $event_type=$request['event_type'];
+            if($event_type=="Other"){
+             $event_info=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+            from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+            vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+            vce.cat_event_type IS NULL and vci.item_type='Meal') Group By item_category,item_name,
+            start_datetime,item_id,item_desc");
+            }
+            else{
+            $event_info=DB::Select("Select sum(qty) as itemcount,item_desc,item_id,item_category,item_name,start_datetime 
+            from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+            vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate' and 
+            vce.cat_event_type='$event_type' and vci.item_type='Meal') Group By item_category,item_name,
+            start_datetime,item_id,item_desc");
+            }
+               
+                $event_info_ar = json_decode(json_encode($event_info),true);
+              //  return $event_info_ar;
+                return view('TodayMenu/todayotherevent',compact('event_info_ar','event_type'));
+                }
+                else{
+                  return view('auth/login');  
+                }
+    }
+    // On Dashboard Change All Events
+    public function onDateAllEvents(Request $request){
+        $value = session()->get('id');
+            if($value!=""){
+
+        $todayDate=$request['date'];
+        $event_data=DB::Select("Select TO_CHAR(start_datetime,'MM-DD-YYYY') as date_value,TO_CHAR(start_datetime,'HH24:MI:SS') as start_time,TO_CHAR(end_datetime,'HH24:MI:SS') as end_time,event_id,room,cat_event_type,name from dev.vr_CAT_EVENT where TO_CHAR(start_datetime,'MM-DD-YYYY')='$todayDate'");
+            $event_data_ar = json_decode(json_encode($event_data),true);
+            return view('Events.todaysEvents',compact('event_data_ar'));
+            }
+            else{
+              return view('auth/login');  
+            }
+    }
+    // Dashboard 2
+    public function bypass2(Request $request)
+    {
+            $value = session()->get('id');
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "kingranchum";
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+            }
+            $sql1 = "SELECT * from USERS WHERE ID='$value' ";
+            $verifyResult = $conn->query($sql1);
+            if ($verifyResult->num_rows > 0) {
+            $fetched_row = $verifyResult->fetch_assoc();
+            }
+            if($fetched_row['SUBROLE']!="Hunting-Reservation")
+            {
+            $value = session()->get('id');
+            if($value!=""){
+            $todayDate=date('m-d-Y');
+            // $todayDate='05-10-2019';
+            $data=DB::Select("select sum(event_count) as eventcount,start_datetime from(Select sum(eventcount) as event_count,start_datetime,cat_event_type from(Select COUNT(distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vce.cat_event_type as cat_event_type from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where vci.item_type='Meal' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY'),vce.event_id,vce.cat_event_type) Group by start_datetime,cat_event_type) Group By start_datetime");
+            $breakfast=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+            from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci 
+            on vcs.item_id=vci.item_id where vce.cat_event_type='Breakfast' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' 
+            and vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");  
+            $lunch=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+            from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+            vcs.item_id=vci.item_id where vce.cat_event_type='Lunch' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+            vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");   
+            $dinner=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+            from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+            vcs.item_id=vci.item_id where vce.cat_event_type='Dinner' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+            vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");   
+            $appetizer=DB::Select("Select COUNT( distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime 
+            from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on 
+            vcs.item_id=vci.item_id where vce.cat_event_type='Cocktails' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+            vci.item_type='Meal' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY')");  
+            $appetizer_first_item_count=DB::Select(" Select distinct vcs.folio_id,vcs.item_id,vcs.qty from dev.vr_CAT_EVENT vce inner join 
+            dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where  TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate'  and
+            vce.cat_event_type='Cocktails' and vci.item_type='Meal' Order by vcs.folio_id");
+            $data_ar = json_decode(json_encode($data),true);
+            $breakfast_ar = json_decode(json_encode($breakfast),true);
+            $lunch_ar = json_decode(json_encode($lunch),true);
+            $dinner_ar = json_decode(json_encode($dinner),true);
+            $appetizer_ar=json_decode(json_encode($appetizer),true);
+            $appetizer_first_item_count_ar=json_decode(json_encode($appetizer_first_item_count),true);
+            $index_app_first_item=0;
+            $previous_fid="";
+            $total_count_app_first_item=0;
+            foreach($appetizer_first_item_count_ar as $id=>$data)
+            {
+            $fid=$appetizer_first_item_count_ar[$index_app_first_item]['folio_id'];
+            $qty=$appetizer_first_item_count_ar[$index_app_first_item]['qty'];
+            if($previous_fid!=$fid)
+            {
+            $total_count_app_first_item=$total_count_app_first_item+$qty;
+            $previous_fid=$fid;
+            }
+            $index_app_first_item=$index_app_first_item+1;
+            }
+
+            if(!empty($data))
+            {
+            $todaymenu=$data_ar[0]['eventcount'];
+            }
+            else{
+            $todaymenu=0;
+            }
+            if(!empty($breakfast))
+            {
+            $todaybreakfast=$breakfast_ar[0]['eventcount'];
+            }
+            else{
+            $todaybreakfast=0;
+            }
+            if(!empty($lunch))
+            {
+            $todaylunch=$lunch_ar[0]['eventcount'];
+            }
+            else{
+            $todaylunch=0;
+            }
+            if(!empty($dinner))
+            {
+            $todaydinner=$dinner_ar[0]['eventcount'];
+            }
+            else{
+            $todaydinner=0;
+            }
+            if(!empty($appetizer)){
+            $todayappetizer=$appetizer_ar[0]['eventcount'];
+            }
+            else{
+            $todayappetizer=0;
+            }
+            if(!empty($appetizer_first_item_count)){
+            $appetizer_first_item=$total_count_app_first_item;
+            }
+            else{
+            $appetizer_first_item=0;
+            }
+            $event_data=DB::Select("select count(distinct vce.event_id) as count,vce.cat_event_type from dev.vr_cat_event vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vci.item_id=vcs.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vci.item_type='Meal' group by vce.cat_event_type");
+            $event_list_ar = json_decode(json_encode($event_data),true);
+            $todays_event_data=DB::Select("Select sum(itemcount) as count,cat_event_type from(Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,
+            cat_event_type from(Select distinct vcs.folio_id,vce.cat_event_type,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on 
+            vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$todayDate'
+            and vci.item_type='Meal') Group By item_id,item_category,item_name,start_datetime,cat_event_type) Group by cat_event_type");
+            $todays_event_data_ar = json_decode(json_encode($todays_event_data),true);
+            $datatodayevent=DB::Select("select sum(eventcount) as event_count,start_datetime,cat_event_type from(Select COUNT(distinct vce.event_id) As eventcount,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vce.cat_event_type as cat_event_type from dev.vr_CAT_EVENT vce inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where vci.item_type='Meal' and TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' GROUP BY vce.cat_event_type,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY'),vce.event_id,vce.cat_event_type) Group by start_datetime,cat_event_type");  
+            $datatodayevent_ar = json_decode(json_encode($datatodayevent),true);
+            return view('home',compact('todayDate','todaymenu','todaybreakfast','todaylunch','todaydinner','event_list_ar','todays_event_data_ar','todayappetizer','datatodayevent_ar','appetizer_first_item'));
+            }
+            else{
+            return view('auth/login');  
+            }
+            }
+            else{
+
+            $value = session()->get('id');
+            if($value!=""){
+            $todayDate=date('d-m-Y');
+            $todayHuntingEventNum=DB::Select("Select count(ec) as count from (Select COUNT(distinct vce.event_id) as ec,vce.event_id,vce.cat_event_type from 
+                  dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id inner join 
+                  dev.vr_cat_items vci on vcs.item_id=vci.item_id where 
+                  To_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and vci.item_type='Guide' group by
+                  vce.event_id,vce.cat_event_type)");
+            $todayHuntingEventNum_ar = json_decode(json_encode($todayHuntingEventNum),true);
+
+            $todayGuidedEventNum=DB::Select("Select Count(cm) as count from (Select COUNT(distinct vce.event_id) as cm from 
+                    dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id inner join dev.vr_cat_items vci 
+                    on vcs.item_id=vci.item_id where To_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and 
+                    vce.cat_event_type LIKE '%Hunting%' and vci.item_name NOT LIKE '%(Unassigned)%' and vci.item_type='Guide'
+                    group by vce.event_id)");
+            $todayGuidedEventNum_ar = json_decode(json_encode($todayGuidedEventNum),true);
+
+            $totalNumGuide=DB::Select("Select Count(distinct item_id) as count from dev.vr_cat_items where 
+            item_type='Guide' and item_name NOT LIKE '%(Unassigned)%'");
+            $totalNumGuide_ar = json_decode(json_encode($totalNumGuide),true);
+
+            $totalAsignedGuide=DB::Select("Select COUNT(DISTINCT vci.item_id) as count from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id
+            inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and
+            vci.item_type='Guide' and vci.item_name NOT LIKE '%(Unassigned)%'");
+            $totalAsignedGuide_ar=json_decode(json_encode($totalAsignedGuide),true);
+
+            $todayHuntingEventInfo=DB::Select(" Select vce.event_id,vce.cat_event_type,vci.item_name,vcs.item_id,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime,vc.name from 
+            dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id inner join dev.vr_customers vc on vcs.folio_customer_id=vc.customer_id where 
+            To_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' ");
+            $todayHuntingEventInfo_ar = json_decode(json_encode($todayHuntingEventInfo),true);
+
+            $totalAsignedGuideInfo=DB::Select("Select distinct vci.item_id,vci.item_name,vce.name,TO_CHAR(vce.START_DATETIME,'MM-DD-YYYY') As start_datetime from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id
+            inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and
+            vci.item_type='Guide' and vci.item_name NOT LIKE '%(Unassigned)'");
+            $totalAsignedGuideInfo_ar=json_decode(json_encode($totalAsignedGuideInfo),true);
+
+            $totalUnasignedGuideInfo=DB::Select("Select distinct vci.item_id,vci.item_name from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id
+            inner join dev.vr_cat_items vci on vcs.item_id!=vci.item_id where TO_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and
+            vci.item_type='Guide' and vci.item_name NOT LIKE '%(Unassigned)%'");
+            $totalUnasignedGuideInfo_ar=json_decode(json_encode($totalUnasignedGuideInfo),true);
+
+             $todayGuideUnassignedEventNum=DB::Select("Select Count(cm) as count from (Select COUNT(distinct vce.event_id) as cm from dev.vr_cat_sales vcs inner join dev.vr_cat_event vce on vcs.folio_id=vce.event_id inner join dev.vr_cat_items vci on vcs.item_id=vci.item_id where To_CHAR(vce.start_datetime,'MM-DD-YYYY')='$todayDate' and vce.cat_event_type LIKE '%Hunting%' and vci.item_name LIKE '%(Unassigned)%' and vci.item_type='Guide' group by vce.event_id)");
+                    $todayGuideUnassignedEventNum_ar=json_decode(json_encode($todayGuideUnassignedEventNum),true);
+            return view('GuideReservationHunting.homeForReservation',compact('todayHuntingEventNum_ar','todayGuidedEventNum_ar','totalNumGuide_ar','totalAsignedGuide_ar','todayHuntingEventInfo_ar','totalAsignedGuideInfo_ar','totalUnasignedGuideInfo_ar','todayDate','todayGuideUnassignedEventNum_ar'));
+            }
+            else{
+            return view('auth/login');  
+            }
+
+            }
+    }
+    // Galary
+    public function galary()
+    {
+        $value = session()->get('id');
+            if($value!=""){
+                $date="08-31-2019";
+            $dataoftodaysitemstocook=DB::Select("Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,cat_event_type,item_desc
+            from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,vci.item_category,vce.cat_event_type as cat_event_type,
+            TO_CHAR(vce.start_datetime,'MM-DD-YYYY') As start_datetime,TO_CHAR(vce.start_datetime,'MM-DD-YYYY HH24:MI:SS') as start_time
+            from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on 
+            vci.item_id=vcs.item_id where TO_CHAR(START_DATETIME,'MM-DD-YYYY')='$date' and vci.item_type='Meal') 
+            Group By item_name,item_id,item_category,start_datetime,cat_event_type,item_desc Order By cat_event_type");
+             $dataoftodaysitemstocook_ar = json_decode(json_encode($dataoftodaysitemstocook),true);
+          //  return $dataoftodaysitemstocook_ar;
+        return view('galary',compact('dataoftodaysitemstocook_ar','date'));
+            }
+            else{
+              return view('auth/login');  
+            }    
+    }
+    public function firstTimeUserPassword(Request $request)
+    {
+            $id=$request['id'];
+            $passwordchange=$request['passwordchange'];
+            $passwordchange2=encrypt($passwordchange);
+            $servername = "localhost";
+            $username = "root";
+            $password = "";
+            $dbname = "kingranchum";
+            $conn = new mysqli($servername, $username, $password, $dbname);
+            if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+            }
+            $sql = "UPDATE USERS SET PASSWORD = '$passwordchange2',FIRST_TIME_FLAG='Y' WHERE ID = $id;";
+            $update = $conn->query($sql);
+            
+            $conn->close();
+            return view('auth/login');
+                // return view('admin.users.index', compact('users'));
+            }
+        
+    public function logout()
+    {
+            session()->flush();
+            return view('auth/login');
+    }
+    public function testPdf()
+        {
+            
+            //  $todayDate='05-09-2019';
+            // new added : start
+            $dataoftodaysitemstocook=DB::Select("Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,
+                cat_event_type,item_desc from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,
+                vci.item_category,vce.cat_event_type as cat_event_type,TO_CHAR(vce.START_DATETIME,'DD-MM-YYYY') As start_datetime,
+                TO_CHAR(vce.start_datetime,'DD-MM-YYYY HH24:MI:SS') as start_time from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs 
+                on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id ) Group By item_name,item_id,item_desc,
+                item_category,start_datetime,cat_event_type Order By cat_event_type");
+            $appetizer_ar = json_decode(json_encode($dataoftodaysitemstocook),true);
+            return view('TodayMenu/AlldayMenu',compact('appetizer_ar','todayDate'));
+            }
+            public function testPdf2(Request $request)
+            {
+            $fromdate=$request['filterdate'];
+            $todate=$request['filterdate2'];
+
+            //  $todayDate='05-09-2019';
+            // new added : start
+            $dataoftodaysitemstocook=DB::Select("Select sum(qty) as itemcount,item_id,item_category,item_name,start_datetime,
+                cat_event_type,item_desc from(Select distinct vcs.folio_id,vcs.item_id,vci.item_name,vcs.item_desc,vcs.qty,
+                vci.item_category,vce.cat_event_type as cat_event_type,TO_CHAR(vce.START_DATETIME,'DD-MM-YYYY') As start_datetime,
+                TO_CHAR(vce.start_datetime,'DD-MM-YYYY HH24:MI:SS') as start_time from dev.vr_CAT_EVENT vce inner join dev.vr_CAT_SALES vcs 
+                on vce.EVENT_ID=vcs.FOLIO_ID inner join dev.vr_CAT_ITEMS vci on vci.item_id=vcs.item_id where TO_CHAR(vce.start_datetime,'DD-MM-YYYY') between '$fromdate' and '$todate') Group By item_name,item_id,item_desc,
+                item_category,start_datetime,cat_event_type Order By cat_event_type");
+            $appetizer_ar = json_decode(json_encode($dataoftodaysitemstocook),true);
+            return view('TodayMenu/AlldayMenu',compact('appetizer_ar','todayDate'));
+            }
+}

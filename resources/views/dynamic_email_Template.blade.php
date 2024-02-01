@@ -1,0 +1,1 @@
+<p>One Time Password : <?php echo $datacode;?></p>
