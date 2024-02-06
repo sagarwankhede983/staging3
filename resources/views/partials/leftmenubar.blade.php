@@ -164,6 +164,11 @@ $tdate = date('m-d-Y');
                             style="margin-bottom:3%"></img></div>
                     Gallery
                 </a> -->
+                {{-- Code Added On 02-01-2024 --}}
+                <a class="nav-link" href="/fromDashboardStaffBooking">
+                    <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
+                    Staff Booking
+                </a>
                 <a class="nav-link collapsed" href="#" data-toggle="collapse"
                     data-target="#collapseItemOption" aria-expanded="false" aria-controls="collapseLayouts">
                     <div class="sb-nav-link-icon"><img src="{{ url('/images/itemListIcon.png') }}" height="15"

@@ -7,6 +7,8 @@ use MaddHatter\LaravelFullcalendar\Facades\Calendar;
 use DB;
 use Illuminate\Http\Request;
 use MYSQLI;
+use PHPExcel;
+use PHPExcel_IOFactory;
 
 class EventController extends Controller
 {
@@ -426,7 +428,7 @@ class EventController extends Controller
             $countqh = count($market_code_list_ar);
 
             $market_code_list_ar[$countqh] = array();
-            $market_code_list_ar[$countqh]['id'] = $countqh+1;
+            $market_code_list_ar[$countqh]['id'] = $countqh + 1;
             $market_code_list_ar[$countqh]['market_code'] = 'All';
             // dd($market_code_list_ar);
 
@@ -679,7 +681,7 @@ class EventController extends Controller
             $countqh = count($market_code_list_ar);
 
             $market_code_list_ar[$countqh] = array();
-            $market_code_list_ar[$countqh]['id'] = $countqh+1;
+            $market_code_list_ar[$countqh]['id'] = $countqh + 1;
             $market_code_list_ar[$countqh]['market_code'] = 'All';
             // dd($market_code_list_ar);
 
@@ -956,8 +958,8 @@ class EventController extends Controller
         if ($value != "") {
             $guide_id = base64_decode($request['guide_id']);
             // $market_code = base64_decode($request['hunt_type']);
-            $market_code='All';
-// dd($request['hunt_type']);
+            $market_code = 'All';
+            // dd($request['hunt_type']);
             if ($guide_id == 'All' && $market_code == "All") {
                 $data = DB::select("select rs.*,REGEXP_REPLACE(vci.item_name,' -.*$','') as GUIDE_NAME
                 from (Select TO_CHAR(vce.START_DATETIME,'DD-MM-YYYY') As start_datetime,TO_CHAR(vce.END_DATETIME,'DD-MM-YYYY') As end_datetime,vce.event_id,vce.cat_event_type as cat_event_type,
@@ -1103,7 +1105,7 @@ class EventController extends Controller
             $countqh = count($market_code_list_ar);
 
             $market_code_list_ar[$countqh] = array();
-            $market_code_list_ar[$countqh]['id'] = $countqh+1;
+            $market_code_list_ar[$countqh]['id'] = $countqh + 1;
             $market_code_list_ar[$countqh]['market_code'] = 'All';
 
 
@@ -1112,5 +1114,153 @@ class EventController extends Controller
         } else {
             return view('auth.login');
         }
+    }
+
+    public function StaffBooking()
+    {
+        $todayDate = date('Y-m-d');
+        $fromdate = $todayDate;
+        $todate = $todayDate;
+        $tempTdayDate = explode("-", $todayDate);
+        $fromdate = $tempTdayDate[0] . "-" . "01" . "-" . "01";
+        $todate = $tempTdayDate[0] . "-" . "12" . "-" . "31";
+        // $fromdate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "01";
+        // $todate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "31";
+        $value = session()->get('id');
+        if ($value != "") {
+            $data = DB::select("select vce.group_folio_id,vc.name Company_Party_Name,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End
+            ,vce.room Room,vce.cat_event_type Event_Type,vce.name Sales_rep,vcs.cat_sales_stage Sales_Stage,vce.qty_est,vce.qty_gtd,vc.vip_level,vcs.folio_location,vcs.folio_total
+            FROM DEV.VR_CAT_EVENT vce
+            inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
+            inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
+            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate' and ROWNUM<=5000
+            order by vce.name");
+            // dd($data);
+            $data_ar = json_decode(json_encode($data), true);
+
+            $todayDate = date('m-d-Y');
+            $tempTdayDate = explode("-", $fromdate);
+            $fromdate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+
+            $tempTdayDate = explode("-", $todate);
+            $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+            // dd("Hello World");
+            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate'));
+        }
+    }
+
+    public function StaffBookingDateFilter(Request $request)
+    {
+        $todayDate = date('m-d-Y');
+        $fromdate = base64_decode($request['fromdate']);
+        $todate = base64_decode($request['todate']);
+
+        $tempTdayDate = explode("-", $fromdate);
+        $fromdate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+        $tempTdayDate = explode("-", $todate);
+        $todate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+
+        $value = session()->get('id');
+
+        if ($value != "") {
+            $data = DB::select("select vce.group_folio_id,vc.name Company_Party_Name,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End
+            ,vce.room Room,vce.cat_event_type Event_Type,vce.name Sales_rep,vcs.cat_sales_stage Sales_Stage,vce.qty_est,vce.qty_gtd,vc.vip_level,vcs.folio_location,vcs.folio_total
+            FROM DEV.VR_CAT_EVENT vce
+            inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
+            inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
+            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate' and ROWNUM<=5000
+            order by vce.name");
+
+            $data_ar = json_decode(json_encode($data), true);
+            $todayDate = date('m-d-Y');
+            $tempTdayDate = explode("-", $fromdate);
+            $fromdate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+
+            $tempTdayDate = explode("-", $todate);
+            $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+            // dd($data_ar);
+            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate'));
+        }
+    }
+
+    public function downloadExcel(Request $request)
+    {
+        $fromdate = base64_decode($request['fromdate']);
+        $todate = base64_decode($request['todate']);
+        $tempTdayDate = explode("-", $fromdate);
+        $fromdate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+        $tempTdayDate = explode("-", $todate);
+        $todate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+
+        $value = session()->get('id');
+
+
+        if ($value != "") {
+            try {
+                $data = DB::select("SELECT vce.group_folio_id, vc.name AS Company_Party_Name, TO_CHAR(vce.start_datetime,'HH:MM AM') AS Event_Time_Start, TO_CHAR(vce.end_datetime,'HH:MM AM') AS Event_Time_End, vce.room AS Room, vce.cat_event_type AS Event_Type, vce.name AS Sales_rep, vcs.cat_sales_stage AS Sales_Stage, vce.qty_est, vce.qty_gtd, vc.vip_level, vcs.folio_location, vcs.folio_total
+                    FROM DEV.VR_CAT_EVENT vce
+                    INNER JOIN dev.vr_cat_sales vcs ON vce.event_id = vcs.folio_id
+                    INNER JOIN dev.vr_customers vc ON vc.customer_id = vcs.folio_customer_id
+                    WHERE TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD HH24:MI:SS') BETWEEN :fromdate AND :todate
+                    ORDER BY vce.name", ['fromdate' => $fromdate, 'todate' => $todate]);
+                // dd($data);
+
+                $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+                $sheet = $spreadsheet->getActiveSheet();
+
+                $headers = [
+                    'Group Folio id',
+                    'Company Party Name',
+                    'Event Start Time',
+                    'Event End Time',
+                    'Room',
+                    'Event Type',
+                    'Sales Rep',
+                    'Sales Stage',
+                    'Qty Est',
+                    'Qty Gtd',
+                    'VIP Level',
+                    'Folio Location',
+                    'Folio Total'
+                ];
+
+                $column = 'A';
+                foreach ($headers as $header) {
+                    $sheet->setCellValue($column . '1', $header);
+                    $column++;
+                }
+
+                $row = 2;
+                foreach ($data as $row_data) {
+                    $sheet->setCellValue('A' . $row, $row_data->group_folio_id);
+                    $sheet->setCellValue('B' . $row, $row_data->company_party_name);
+                    $sheet->setCellValue('C' . $row, $row_data->event_time_start);
+                    $sheet->setCellValue('D' . $row, $row_data->event_time_end);
+                    $sheet->setCellValue('E' . $row, $row_data->room);
+                    $sheet->setCellValue('F' . $row, $row_data->event_type);
+                    $sheet->setCellValue('G' . $row, $row_data->sales_rep);
+                    $sheet->setCellValue('H' . $row, $row_data->sales_stage);
+                    $sheet->setCellValue('I' . $row, $row_data->qty_est);
+                    $sheet->setCellValue('J' . $row, $row_data->qty_gtd);
+                    $sheet->setCellValue('K' . $row, $row_data->vip_level);
+                    $sheet->setCellValue('L' . $row, $row_data->folio_location);
+                    $sheet->setCellValue('M' . $row, $row_data->folio_total);
+                    $row++;
+                }
+
+                $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+
+                header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                header('Content-Disposition: attachment;filename="data.xlsx"');
+                header('Cache-Control: max-age=0');
+
+                $writer->save('php://output');
+                exit;
+            } catch (\Exception $e) {
+                dd($e->getMessage());
+            }
+        }
+
+
     }
 }
