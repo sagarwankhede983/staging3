@@ -73,12 +73,13 @@
         <div id="layoutSidenav_content">
             <main>
 
-                @if (count($data_ar) >= 5000)
+                {{-- @if (count($data_ar) >= 5000)
                     <div class="alert">
                         <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-                        <strong></strong> This data is too larger to show on grid so you can view only 5000 rows but when you click it will download all data in given date range will be downloaded.
+                        <strong></strong> This data is too larger to show on grid so you can view only 5000 rows but
+                        when you click it will download all data in given date range will be downloaded.
                     </div>
-                @endif
+                @endif --}}
                 <div class="container-fluid">
                     <div class="container1"
                         style="margin-bottom:2%;margin-top: 2%;padding-left:1.5rem;padding-right:1.5rem">
@@ -90,15 +91,15 @@
                         <?php $dateP = $fromdate;
                         $date = strtok($dateP, ' '); ?>
                         <?php if($date==""){
-                                            ?>
+                                                                   ?>
                         <label>From Date:<br>
                             <input name="dateF" id="demodateF" style="width: 100px;">&nbsp;&nbsp;</label>
                         <label>To Date:<br>
                             <input name="dateT" id="demodateT" style="width: 100px;">&nbsp;&nbsp;</label>
                         <?php
-                                        }
-                                        else{
-                                            ?>
+                                                               }
+                                                               else{
+                                                                   ?>
                         <label>From Date:<br>
                             <input name="dateF" id="demodateF" value="<?php echo $date; ?>"
                                 style="width: 130px;">&nbsp;&nbsp;</label>
@@ -106,14 +107,15 @@
                             <input name="dateT" id="demodateT" value="<?php echo $todate; ?>"
                                 style="width: 130px;">&nbsp;&nbsp;</label>
                         <?php
-                                        }
-                                        ?>
-
-                        {{-- <button id="download" type="submit">Download Excel</button> --}}
-
-
-
-
+                                                               }
+                                                               ?>
+                        {{-- <div> --}}
+                        <label>Year :&nbsp;<br>
+                            <select class="chosen" id="dynamic_select" style="width:200px">
+                                {{-- <option value="2023" selected>2023</option> --}}
+                            </select>&nbsp;&nbsp;
+                        </label>
+                        {{-- </div> --}}
                     </div>
 
                     <div class="card" style="height: auto !important; margin-top: 1%">
@@ -168,6 +170,7 @@
                                                   $i++;
                                                   }
                                                  ?>
+                                                 {{-- {{ dd($data_ar) }} --}}
                                     </tbody>
                                 </table>
                             </div>
@@ -177,8 +180,6 @@
             </main>
         </div>
     </div>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous">
-    </script>
     <script src="../js/scripts.js"></script>
     <script>
         $('.datatable').DataTable({
@@ -203,45 +204,94 @@
                     orientation: 'landscape'
                 },
                 'print',
-                {
-                    text: 'Download Excel',
-                    className: 'custom-excel-button',
-                    action: function(e, dt, node, config) {
-                        $('#hiddenDownloadButton').click();
-                    }
-                }
+                // {
+                //     text: 'Download Excel',
+                //     className: 'custom-excel-button',
+                //     action: function(e, dt, node, config) {
+                //         $('#hiddenDownloadButton').click();
+                //     }
+                // }
             ],
             pageLength: 10
         });
+        // $(document).ready(function() {
+        //     // Assign an ID to the custom Excel button
+        //     $('.custom-excel-button').attr('id', 'download');
+        // });
+    </script>
+    <script>
         $(document).ready(function() {
-            // Assign an ID to the custom Excel button
-            $('.custom-excel-button').attr('id', 'download');
+            $(function() {
+                $("#demodateF").datepicker({
+                    dateFormat: 'mm-dd-yy',
+                    onSelect: function(selectedDate) {
+                        var fromDate = new Date(selectedDate);
+                        var toDate = new Date(fromDate);
+                        toDate.setFullYear(fromDate.getFullYear() + 1);
+                        $("#demodateT").datepicker("option", "minDate", selectedDate);
+                        $("#demodateT").datepicker("option", "maxDate", toDate);
+                        // Refresh the "to" date Datepicker
+                        $("#demodateT").datepicker("refresh");
+                        $('#demodateF').trigger('change');
+                    }
+                });
+            });
+
+            $(function() {
+                $("#demodateT").datepicker({
+                    dateFormat: 'mm-dd-yy',
+                    beforeShow: function(input, inst) {
+                        var minDate = $("#demodateF").datepicker("getDate");
+                        if (minDate) {
+                            var maxDate = new Date(minDate);
+                            maxDate.setFullYear(minDate.getFullYear() + 1);
+                            $(this).datepicker("option", "minDate", minDate);
+                            $(this).datepicker("option", "maxDate", maxDate);
+                        }
+                    }
+                });
+            });
         });
-    </script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous">
-    </script>
-    <script src="../js/scripts.js"></script>
-    <script type="text/javascript">
-        window.addEventListener("load", function() {
-            setTimeout(otherOperation, 5);
-        }, false);
 
-        function otherOperation() {
-            var hidePreButtonFromCalendar = document.getElementsByClassName("fc-prev-button");
-            hidePreButtonFromCalendar[0].style.display = "none";
-            var hideNextButtonFromCalendar = document.getElementsByClassName("fc-next-button");
-            hideNextButtonFromCalendar[0].style.display = "none";
-            var hideTodayButtonFromCalendar = document.getElementsByClassName("fc-today-button");
-            hideTodayButtonFromCalendar[0].style.display = "none";
-            var hideMonthButtonFromCalendar = document.getElementsByClassName("fc-month-button");
-            //hideWeekButtonFromCalendar[0].style.visibility = "hidden"; // or
-            hideMonthButtonFromCalendar[0].style.display = "none";
-            var hideWeekButtonFromCalendar = document.getElementsByClassName("fc-agendaWeek-button");
-            hideWeekButtonFromCalendar[0].style.display = "none";
-            var hideDayButtonFromCalendar = document.getElementsByClassName("fc-agendaDay-button");
-            hideDayButtonFromCalendar[0].style.display = "none";
+        var year = <?php echo $year; ?>;
 
+        var select = document.getElementById("dynamic_select");
+        var currentYear = new Date().getFullYear();
+        if(year != currentYear){
+            currentYear = year;
         }
+        var startYear = currentYear - 10; // Adjust as needed
+        var endYear = currentYear + 10;
+
+        for (var year = startYear; year <= endYear; year++) {
+            var option = document.createElement("option");
+            option.value = year;
+            option.text = year;
+            if (year === currentYear) { // Select the current year by default
+                option.selected = true;
+            }
+            select.appendChild(option);
+        }
+
+        function updateDates() {
+            var selectedYear = select.value;
+            var formattedFromDate = `01-01-${selectedYear}`;
+            var formattedToDate = `31-12-${selectedYear}`;
+            document.getElementById("demodateF").value = formattedFromDate;
+            document.getElementById("demodateT").value = formattedToDate;
+            $('#demodateF').trigger('change');
+        }
+
+        // Attach event listener to the select element
+        select.addEventListener("change", updateDates);
+
+        // Initial update of the dates based on the default selected year
+        fromdate = document.getElementById("demodateF").value;
+        todate = document.getElementById("demodateT").value;
+        if(fromdate.getFullYear() === year && todate.getFullYear() === year){
+            updateDates();
+        }
+
     </script>
     <script>
         function fun1() {
@@ -422,100 +472,63 @@
     <script>
         $(function() {
             $('#demodateF').on('change', function() {
+                console.log("Inside  demoF");
                 var fromdate = document.getElementById("demodateF").value;
                 var toDate = calculateToDate(fromdate, 1); // Calculate todate by adding 1 year
                 document.getElementById("demodateT").value = toDate;
                 var todate = document.getElementById("demodateT").value;
-
-                window.location = "/dateFilterStaffBooking/" + btoa(fromdate) + "/" + btoa(todate);
-                // /viewCustomerDetailFromItemDetail/{customer_id}/{date}
-
+                var year = document.getElementById("dynamic_select").value;
+                window.location = "/dateFilterStaffBooking/" + btoa(fromdate) + "/" + btoa(todate) + "/" + btoa(year);
             });
 
-            function calculateToDate(fromdate, yearsToAdd) {
-                var fromDateObj = new Date(fromdate);
-                var toDateObj = new Date(fromDateObj);
-                toDateObj.setFullYear(fromDateObj.getFullYear() + yearsToAdd);
-                toDateObj.setDate(toDateObj.getDate() - 1);
-                // Extract mm, dd, yyyy parts
-                var mm = String(toDateObj.getMonth() + 1).padStart(2, '0'); // January is 0!
-                var dd = String(toDateObj.getDate()).padStart(2, '0');
-                var yyyy = toDateObj.getFullYear();
-
-                // Format as mm-dd-yyyy
-                var formattedDate = mm + '-' + dd + '-' + yyyy;
-                return formattedDate;
-            }
-        });
-
-        $(function() {
             $('#demodateT').on('change', function() {
+                console.log("Inside  demoT");
                 var fromdate = document.getElementById("demodateF").value;
                 var todate = document.getElementById("demodateT").value;
-
-                window.location = "/dateFilterStaffBooking/" + btoa(fromdate) + "/" + btoa(todate);
-                // /viewCustomerDetailFromItemDetail/{customer_id}/{date}
-
+                var year = document.getElementById("dynamic_select");
+                window.location = "/dateFilterStaffBooking/" + btoa(fromdate) + "/" + btoa(todate) + "/" + btoa(year);
             });
-        });
 
-
-        $(function() {
             $('#download').on('click', function() {
                 var fromdate = document.getElementById("demodateF").value;
                 var todate = document.getElementById("demodateT").value;
 
                 window.location = "/downloadexcel/" + btoa(fromdate) + "/" + btoa(todate);
-                // /viewCustomerDetailFromItemDetail/{customer_id}/{date}
-
             });
         });
 
-        $(document).ready(function() {
-            // Assuming `data_ar` is the array containing your data
-            var dataCount = <?php echo count($data_ar); ?>;
+        function calculateToDate(fromdate, yearsToAdd) {
+            var fromDateObj = new Date(fromdate);
+            var toDateObj = new Date(fromDateObj);
+            toDateObj.setFullYear(fromDateObj.getFullYear() + yearsToAdd);
+            toDateObj.setDate(toDateObj.getDate() - 1);
+            // Extract mm, dd, yyyy parts
+            var mm = String(toDateObj.getMonth() + 1).padStart(2, '0'); // January is 0!
+            var dd = String(toDateObj.getDate()).padStart(2, '0');
+            var yyyy = toDateObj.getFullYear();
 
-            // Hide the DataTables buttons by default
-            $('.dt-buttons').hide();
+            // Format as mm-dd-yyyy
+            var formattedDate = mm + '-' + dd + '-' + yyyy;
+            return formattedDate;
+        }
 
-            // Show the DataTables buttons if data count is less than 5000
-            if (dataCount < 5000) {
-                $('.dt-buttons').show();
-                $('#download').hide();
-
-            } else {
-
-                $('.dt-buttons').show(); // Hide DataTables buttons
-                $('.buttons-pdf').hide();
-                $('.buttons-copy').hide();
-                $('.buttons-csv').hide();
-                $('.buttons-excel').hide();
-                $('.buttons-print').hide();
-                $('#download').show();
-            }
-
-            // Add custom functionality to your button (assuming it has an ID of "download")
-            $('#download').click(function() {
-                // Add your custom functionality here
-            });
-        });
+        // $(document).ready(function() {
+        // var dataCount = <?php echo count($data_ar); ?>;
+        // $('.dt-buttons').hide();
+        // if (dataCount < 5000) {
+        //     $('.dt-buttons').show();
+        //     $('#download').hide();
+        // } else {
+        //     $('.dt-buttons').show(); // Hide DataTables buttons
+        //     $('.buttons-pdf').hide();
+        //     $('.buttons-copy').hide();
+        //     $('.buttons-csv').hide();
+        //     $('.buttons-excel').hide();
+        //     $('.buttons-print').hide();
+        //     $('#download').show();
+        //     }
+        // });
     </script>
-    <script>
-        $(document).ready(function() {
-            $(function() {
-                $("#demodateF").datepicker({
-                    dateFormat: 'mm-dd-yy',
-                });
-            });
-
-            $(function() {
-                $("#demodateT").datepicker({
-                    dateFormat: 'mm-dd-yy',
-                });
-            });
-        })
-    </script>
-
 
 </body>
 

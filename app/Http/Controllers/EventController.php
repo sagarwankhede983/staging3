@@ -1133,7 +1133,7 @@ class EventController extends Controller
             FROM DEV.VR_CAT_EVENT vce
             inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
             inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
-            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate' and ROWNUM<=5000
+            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate'
             order by vce.name");
             // dd($data);
             $data_ar = json_decode(json_encode($data), true);
@@ -1144,22 +1144,26 @@ class EventController extends Controller
 
             $tempTdayDate = explode("-", $todate);
             $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
-            // dd("Hello World");
-            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate'));
+            $year = Date('Y');
+            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate','year'));
         }
     }
 
     public function StaffBookingDateFilter(Request $request)
     {
+        // dd("Hello");
         $todayDate = date('m-d-Y');
         $fromdate = base64_decode($request['fromdate']);
         $todate = base64_decode($request['todate']);
-
+        $year = base64_decode($request['year']);
         $tempTdayDate = explode("-", $fromdate);
         $fromdate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
-        $tempTdayDate = explode("-", $todate);
-        $todate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
 
+
+        $tempTdayDate = explode("-", $todate);
+
+        $todate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+        // dd($todate);
         $value = session()->get('id');
 
         if ($value != "") {
@@ -1168,7 +1172,7 @@ class EventController extends Controller
             FROM DEV.VR_CAT_EVENT vce
             inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
             inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
-            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate' and ROWNUM<=5000
+            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate'
             order by vce.name");
 
             $data_ar = json_decode(json_encode($data), true);
@@ -1178,8 +1182,9 @@ class EventController extends Controller
 
             $tempTdayDate = explode("-", $todate);
             $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
-            // dd($data_ar);
-            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate'));
+            $year = $tempTdayDate[0];
+            // dd($year);
+            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate','year'));
         }
     }
 
@@ -1260,7 +1265,5 @@ class EventController extends Controller
                 dd($e->getMessage());
             }
         }
-
-
     }
 }
