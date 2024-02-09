@@ -17,6 +17,7 @@
     <script type="text/javascript" src="{{ asset('/js/googlecalender.js') }}"></script>
     <!-- https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js -->
     <script type="text/javascript" src="{{ asset('/js/googlecalender.min.js') }}"></script>
+    <script src="../js/scripts.js"></script>
     @include('layouts.dataTablesRequiredJS')
     <style>
         .container1 {
@@ -61,10 +62,62 @@
         .closebtn:hover {
             color: black;
         }
+
+        #loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 120px;
+  height: 120px;
+  margin: -76px 0 0 -76px;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+}
+
+/* Animation Keyframes */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Page Content Animation */
+.animate-bottom {
+  position: relative;
+  -webkit-animation-name: animatebottom;
+  -webkit-animation-duration: 1s;
+  animation-name: animatebottom;
+  animation-duration: 1s;
+}
+
+@-webkit-keyframes animatebottom {
+  from { bottom:-100px; opacity:0; }
+  to { bottom:0px; opacity:1; }
+}
+
+@keyframes animatebottom {
+  from{ bottom:-100px; opacity:0; }
+  to{ bottom:0; opacity:1; }
+}
+
+/* Hide the loader initially */
+#loader { display: block; }
+
+/* Hide the page content initially */
+#hello { display: none; }
     </style>
 </head>
 
-<body class="sb-nav-fixed">
+<body class="sb-nav-fixed" onload="showPage()" style="margin:0;">
+    <div id="loader"></div>
     <!-- import sidebar navigation header -->
     @include('partials.navbarheader')
     <div id="layoutSidenav">
@@ -80,99 +133,101 @@
                         when you click it will download all data in given date range will be downloaded.
                     </div>
                 @endif --}}
-                <div class="container-fluid">
-                    <div class="container1"
-                        style="margin-bottom:2%;margin-top: 2%;padding-left:1.5rem;padding-right:1.5rem">
-                        <div class="left">
-                            <div class="child">
-                                <button class="btn btn-primary" onclick="history.go(-1);">Back </button>
+                <div id="hello">
+                    <div class="container-fluid">
+                        <div class="container1"
+                            style="margin-bottom:2%;margin-top: 2%;padding-left:1.5rem;padding-right:1.5rem">
+                            <div class="left">
+                                <div class="child">
+                                    <button class="btn btn-primary" onclick="history.go(-1);">Back </button>
+                                </div>
                             </div>
-                        </div>
-                        <?php $dateP = $fromdate;
-                        $date = strtok($dateP, ' '); ?>
-                        <?php if($date==""){
+                            <?php $dateP = $fromdate;
+                            $date = strtok($dateP, ' '); ?>
+                            <?php if($date==""){
                                                                    ?>
-                        <label>From Date:<br>
-                            <input name="dateF" id="demodateF" style="width: 100px;">&nbsp;&nbsp;</label>
-                        <label>To Date:<br>
-                            <input name="dateT" id="demodateT" style="width: 100px;">&nbsp;&nbsp;</label>
-                        <?php
+                            <label>From Date:<br>
+                                <input name="dateF" id="demodateF" style="width: 100px;">&nbsp;&nbsp;</label>
+                            <label>To Date:<br>
+                                <input name="dateT" id="demodateT" style="width: 100px;">&nbsp;&nbsp;</label>
+                            <?php
                                                                }
                                                                else{
                                                                    ?>
-                        <label>From Date:<br>
-                            <input name="dateF" id="demodateF" value="<?php echo $date; ?>"
-                                style="width: 130px;">&nbsp;&nbsp;</label>
-                        <label>To Date:<br>
-                            <input name="dateT" id="demodateT" value="<?php echo $todate; ?>"
-                                style="width: 130px;">&nbsp;&nbsp;</label>
-                        <?php
+                            <label>From Date:<br>
+                                <input name="dateF" id="demodateF" value="<?php echo $date; ?>"
+                                    style="width: 130px;">&nbsp;&nbsp;</label>
+                            <label>To Date:<br>
+                                <input name="dateT" id="demodateT" value="<?php echo $todate; ?>"
+                                    style="width: 130px;">&nbsp;&nbsp;</label>
+                            <?php
                                                                }
                                                                ?>
-                        {{-- <div> --}}
-                        <label>Year :&nbsp;<br>
-                            <select class="chosen" id="dynamic_select" style="width:200px">
-                                {{-- <option value="2023" selected>2023</option> --}}
-                            </select>&nbsp;&nbsp;
-                        </label>
-                        {{-- </div> --}}
-                    </div>
-
-                    <div class="card" style="height: auto !important; margin-top: 1%">
-                        <div class="card-header">
-                            {{ trans('Staff Booking Data') }}
+                            {{-- <div> --}}
+                            <label>Year :&nbsp;<br>
+                                <select class="chosen" id="dynamic_select" style="width:200px">
+                                    {{-- <option value="2023" selected>2023</option> --}}
+                                </select>&nbsp;&nbsp;
+                            </label>
+                            {{-- </div> --}}
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
 
-                                <table class="table table-bordered table-striped table-hover datatable"
-                                    style="table-layout:fixed;">
-                                    <thead>
-                                        <tr>
-                                            <th class="text-left">SR.NO.</th>
-                                            <th class="text-left">Group Folio id</th>
-                                            <th class="text-left">Company Party Name </th>
-                                            <th class="text-left">Event Start Time</th>
-                                            <th class="text-left">Event End Time</th>
-                                            <th class="text-left">Room</th>
-                                            <th class="text-left">Event Type</th>
-                                            <th class="text-left">Sales Rep</th>
-                                            <th class="text-left">Sales Stage</th>
-                                            <th class="text-left">Quantity est </th>
-                                            <th class="text-left">Quantity gtd </th>
-                                            <th class="text-left">VIP Level</th>
-                                            <th class="text-left">Folio Location </th>
-                                            <th class="text-left">Folio Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
+                        <div class="card" style="height: auto !important; margin-top: 1%">
+                            <div class="card-header">
+                                {{ trans('Staff Booking Data') }}
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+
+                                    <table class="table table-bordered table-striped table-hover datatable"
+                                        style="table-layout: fixed;">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-left" id="srno">SR.NO.</th>
+                                                <th class="text-left">Group Folio id</th>
+                                                <th class="text-left">Company Party Name </th>
+                                                <th class="text-left">Event Start Time</th>
+                                                <th class="text-left">Event End Time</th>
+                                                <th class="text-left">Room</th>
+                                                <th class="text-left">Event Type</th>
+                                                <th class="text-left">Sales Rep</th>
+                                                <th class="text-left">Sales Stage</th>
+                                                <th class="text-left">Quantity est </th>
+                                                <th class="text-left">Quantity gtd </th>
+                                                <th class="text-left">VIP Level</th>
+                                                <th class="text-left">Folio Location </th>
+                                                <th class="text-left">Folio Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
                                               $i=0;
                                               foreach($data_ar as $id => $eventcount)  {
                                               ?>
-                                        <tr style="align-content: center">
-                                            <td class="text-left">{{ $i + 1 }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['group_folio_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['company_party_name'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['event_time_start'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['event_time_end'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['room'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['event_type'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['sales_rep'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['sales_stage'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_est'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_gtd'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['vip_level'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_location'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_total'] }}</td>
-                                        </tr>
-                                        <?php
+                                            <tr style="align-content: center">
+                                                <td class="text-left">{{ $i + 1 }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['group_folio_id'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['company_party_name'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['event_time_start'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['event_time_end'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['room'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['event_type'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['sales_rep'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['sales_stage'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['qty_est'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['qty_gtd'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['vip_level'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_location'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_total'] }}</td>
+                                            </tr>
+                                            <?php
                                                   $i++;
                                                   }
                                                  ?>
-                                                 {{-- {{ dd($data_ar) }} --}}
-                                    </tbody>
-                                </table>
+                                            {{-- {{ dd($data_ar) }} --}}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -180,7 +235,7 @@
             </main>
         </div>
     </div>
-    <script src="../js/scripts.js"></script>
+
     <script>
         $('.datatable').DataTable({
             scrollX: true,
@@ -257,7 +312,7 @@
 
         var select = document.getElementById("dynamic_select");
         var currentYear = new Date().getFullYear();
-        if(year != currentYear){
+        if (year != currentYear) {
             currentYear = year;
         }
         var startYear = currentYear - 10; // Adjust as needed
@@ -288,10 +343,9 @@
         // Initial update of the dates based on the default selected year
         fromdate = document.getElementById("demodateF").value;
         todate = document.getElementById("demodateT").value;
-        if(fromdate.getFullYear() === year && todate.getFullYear() === year){
+        if (fromdate.getFullYear() === year && todate.getFullYear() === year) {
             updateDates();
         }
-
     </script>
     <script>
         function fun1() {
@@ -478,7 +532,8 @@
                 document.getElementById("demodateT").value = toDate;
                 var todate = document.getElementById("demodateT").value;
                 var year = document.getElementById("dynamic_select").value;
-                window.location = "/dateFilterStaffBooking/" + btoa(fromdate) + "/" + btoa(todate) + "/" + btoa(year);
+                window.location = "/dateFilterStaffBooking/" + btoa(fromdate) + "/" + btoa(todate) + "/" +
+                    btoa(year);
             });
 
             $('#demodateT').on('change', function() {
@@ -486,7 +541,8 @@
                 var fromdate = document.getElementById("demodateF").value;
                 var todate = document.getElementById("demodateT").value;
                 var year = document.getElementById("dynamic_select");
-                window.location = "/dateFilterStaffBooking/" + btoa(fromdate) + "/" + btoa(todate) + "/" + btoa(year);
+                window.location = "/dateFilterStaffBooking/" + btoa(fromdate) + "/" + btoa(todate) + "/" +
+                    btoa(year);
             });
 
             $('#download').on('click', function() {
@@ -528,6 +584,17 @@
         //     $('#download').show();
         //     }
         // });
+
+        // window.onload = function() {
+        //     document.getElementById("loader").style.display = "none";
+        //     document.getElementById("hello").style.display = "block";
+        // };
+
+        function showPage() {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("hello").style.display = "block";
+            document.getElementById("srno").click();
+        }
     </script>
 
 </body>

@@ -1145,7 +1145,7 @@ class EventController extends Controller
             $tempTdayDate = explode("-", $todate);
             $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
             $year = Date('Y');
-            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate','year'));
+            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate', 'year'));
         }
     }
 
@@ -1184,7 +1184,7 @@ class EventController extends Controller
             $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
             $year = $tempTdayDate[0];
             // dd($year);
-            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate','year'));
+            return view('staffbooking', compact('data_ar', 'todayDate', 'fromdate', 'todate', 'year'));
         }
     }
 
@@ -1264,6 +1264,94 @@ class EventController extends Controller
             } catch (\Exception $e) {
                 dd($e->getMessage());
             }
+        }
+    }
+
+    public function StaffBookingRevised()
+    {
+        $todayDate = date('Y-m-d');
+        $fromdate = $todayDate;
+        $todate = $todayDate;
+        $tempTdayDate = explode("-", $todayDate);
+        $fromdate = $tempTdayDate[0] . "-" . "01" . "-" . "01";
+        $todate = $tempTdayDate[0] . "-" . "12" . "-" . "31";
+        // $fromdate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "01";
+        // $todate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "31";
+        $value = session()->get('id');
+        if ($value != "") {
+            // $data = DB::select("select vce.group_folio_id,vc.name Company_Party_Name,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End
+            // ,vce.room Room,vce.cat_event_type Event_Type,vce.name Sales_rep,vcs.cat_sales_stage Sales_Stage,vce.qty_est,vce.qty_gtd,vc.vip_level,vcs.folio_location,vcs.folio_total
+            // FROM DEV.VR_CAT_EVENT vce
+            // inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
+            // inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
+            // where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate'
+            // order by vce.name");
+
+            $data = DB::select("select vce.*,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End,vcs.*,vc.*
+            FROM DEV.VR_CAT_EVENT vce
+            inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
+            inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
+            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate' and ROWNUM<10
+            order by vce.name");
+
+            $users = DB::table('dev.VR_CAT_EVENT')->get();
+            dd($users);
+            $data_ar = json_decode(json_encode($data), true);
+            // dd($data_ar);
+            $todayDate = date('m-d-Y');
+            $tempTdayDate = explode("-", $fromdate);
+            $fromdate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+
+            $tempTdayDate = explode("-", $todate);
+            $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+            $year = Date('Y');
+            return view('staffbookingRevised', compact('data_ar', 'todayDate', 'fromdate', 'todate', 'year'));
+        }
+    }
+
+    public function StaffBookingDateFilterRevised(Request $request)
+    {
+        // dd("Hello");
+        $todayDate = date('m-d-Y');
+        $fromdate = base64_decode($request['fromdate']);
+        $todate = base64_decode($request['todate']);
+        $year = base64_decode($request['year']);
+        $tempTdayDate = explode("-", $fromdate);
+        $fromdate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+
+
+        $tempTdayDate = explode("-", $todate);
+
+        $todate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+        // dd($todate);
+        $value = session()->get('id');
+
+        if ($value != "") {
+            // $data = DB::select("select vce.group_folio_id,vc.name Company_Party_Name,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End
+            // ,vce.room Room,vce.cat_event_type Event_Type,vce.name Sales_rep,vcs.cat_sales_stage Sales_Stage,vce.qty_est,vce.qty_gtd,vc.vip_level,vcs.folio_location,vcs.folio_total
+            // FROM DEV.VR_CAT_EVENT vce
+            // inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
+            // inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
+            // where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate'
+            // order by vce.name");
+
+            $data = DB::select("select vce.*,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End,vcs.*,vc.*
+            FROM DEV.VR_CAT_EVENT vce
+            inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
+            inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
+            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate'
+            order by vce.name");
+// dd($data);
+            $data_ar = json_decode(json_encode($data), true);
+            $todayDate = date('m-d-Y');
+            $tempTdayDate = explode("-", $fromdate);
+            $fromdate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+
+            $tempTdayDate = explode("-", $todate);
+            $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+            $year = $tempTdayDate[0];
+            // dd($year);
+            return view('staffbookingRevised', compact('data_ar', 'todayDate', 'fromdate', 'todate', 'year'));
         }
     }
 }

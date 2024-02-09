@@ -139,3 +139,6 @@ Route::get('/getSheduleFilterR/{fromdate}/{todate}/{guide_id}/{hunt_type}/{flag}
  Route::get('/dateFilterStaffBooking/{fromdate}/{todate}/{year}','EventController@StaffBookingDateFilter');
 //  Route::get('/download-excel', 'EventController@downloadExcel')->name('download.excel');
  Route::get('/downloadexcel/{fromdate}/{todate}', 'EventController@downloadExcel');
+
+ Route::get('/fromDashboardStaffBookingRevised', 'EventController@StaffBookingRevised');
+ Route::get('/dateFilterStaffBookingRevised/{fromdate}/{todate}/{year}','EventController@StaffBookingDateFilterRevised');
