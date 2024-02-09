@@ -1137,7 +1137,7 @@ class EventController extends Controller
             order by vce.name");
             // dd($data);
             $data_ar = json_decode(json_encode($data), true);
-
+            // dd($data_ar);
             $todayDate = date('m-d-Y');
             $tempTdayDate = explode("-", $fromdate);
             $fromdate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];

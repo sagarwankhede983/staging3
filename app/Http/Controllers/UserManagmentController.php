@@ -854,9 +854,30 @@ class UserManagmentController extends Controller
         $listOutCustomers_ar = json_decode(json_encode($listOutCustomers), true);
         $event_type_list = DB::Select("select distinct(cat_event_type) from dev.vr_cat_event where cat_event_type!=' ' order by cat_event_type ASC");
         $event_type_list_ar = json_decode(json_encode($event_type_list), true);
-        $market_code = DB::Select("Select distinct(vip_level) from dev.vr_customers where vip_level!=' ' order by vip_level ASC");
-        $market_code_ar = json_decode(json_encode($market_code), true);
 
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "kingranchum";
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        $sql = "SELECT market_code as vip_level from marketcodesetup";
+        $market_code_list = $conn->query($sql);
+        $market_code_list_ar[] = "";
+        if ($market_code_list->num_rows > 0) {
+            $i = 0;
+            while ($row = $market_code_list->fetch_assoc()) {
+                $market_code_list_ar[$i] = $row;
+                $i = $i + 1;
+            }
+        }
+        $conn->close();
+        // dd($market_code_list_ar);
+
+        // $market_code = DB::Select("Select distinct(vip_level) from dev.vr_customers where vip_level!=' ' order by vip_level ASC");
+        $market_code_ar = json_decode(json_encode($market_code_list_ar), true);
         return view('onRequestCustomerDetails.cateringRoomReservationNoNights', compact('todayDate', 'resort_suit_customers_cat_no_nights_ar', 'toDatefromController', 'fromDatefromController', 'listOutCustomers_ar', 'event_type_list_ar', 'market_code_ar', 'customerIdFilter', 'eventTypeFilter', 'marketCodeFilter'));
     }
     public function getNoNightsCateringSalesOnSubmit(Request $request)
@@ -903,8 +924,29 @@ class UserManagmentController extends Controller
         $listOutCustomers_ar = json_decode(json_encode($listOutCustomers), true);
         $event_type_list = DB::Select("select distinct(cat_event_type) from dev.vr_cat_event where cat_event_type!=' ' order by cat_event_type ASC");
         $event_type_list_ar = json_decode(json_encode($event_type_list), true);
-        $market_code = DB::Select("Select distinct(vip_level) from dev.vr_customers where vip_level!=' ' order by vip_level ASC");
-        $market_code_ar = json_decode(json_encode($market_code), true);
+
+
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "kingranchum";
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        $sql = "SELECT market_code as vip_level from marketcodesetup";
+        $market_code_list = $conn->query($sql);
+        $market_code_list_ar[] = "";
+        if ($market_code_list->num_rows > 0) {
+            $i = 0;
+            while ($row = $market_code_list->fetch_assoc()) {
+                $market_code_list_ar[$i] = $row;
+                $i = $i + 1;
+            }
+        }
+        $conn->close();
+        // $market_code = DB::Select("Select distinct(vip_level) from dev.vr_customers where vip_level!=' ' order by vip_level ASC");
+        $market_code_ar = json_decode(json_encode($market_code_list_ar), true);
 
         //dd($final_query);
         return view('onRequestCustomerDetails.cateringRoomReservationNoNights', compact('todayDate', 'resort_suit_customers_cat_no_nights_ar', 'toDatefromController', 'fromDatefromController', 'listOutCustomers_ar', 'event_type_list_ar', 'market_code_ar', 'customerIdFilter', 'eventTypeFilter', 'marketCodeFilter'));
