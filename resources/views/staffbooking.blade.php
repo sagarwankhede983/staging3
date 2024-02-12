@@ -64,55 +64,83 @@
         }
 
         #loader {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 1;
-  width: 120px;
-  height: 120px;
-  margin: -76px 0 0 -76px;
-  border: 16px solid #f3f3f3;
-  border-radius: 50%;
-  border-top: 16px solid #3498db;
-  -webkit-animation: spin 2s linear infinite;
-  animation: spin 2s linear infinite;
-}
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            z-index: 1;
+            width: 120px;
+            height: 120px;
+            margin: -76px 0 0 -76px;
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
 
-/* Animation Keyframes */
-@-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
-}
+        /* Animation Keyframes */
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
 
-/* Page Content Animation */
-.animate-bottom {
-  position: relative;
-  -webkit-animation-name: animatebottom;
-  -webkit-animation-duration: 1s;
-  animation-name: animatebottom;
-  animation-duration: 1s;
-}
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
 
-@-webkit-keyframes animatebottom {
-  from { bottom:-100px; opacity:0; }
-  to { bottom:0px; opacity:1; }
-}
+            100% {
+                transform: rotate(360deg);
+            }
+        }
 
-@keyframes animatebottom {
-  from{ bottom:-100px; opacity:0; }
-  to{ bottom:0; opacity:1; }
-}
+        /* Page Content Animation */
+        .animate-bottom {
+            position: relative;
+            -webkit-animation-name: animatebottom;
+            -webkit-animation-duration: 1s;
+            animation-name: animatebottom;
+            animation-duration: 1s;
+        }
 
-/* Hide the loader initially */
-#loader { display: block; }
+        @-webkit-keyframes animatebottom {
+            from {
+                bottom: -100px;
+                opacity: 0;
+            }
 
-/* Hide the page content initially */
-#hello { display: none; }
+            to {
+                bottom: 0px;
+                opacity: 1;
+            }
+        }
+
+        @keyframes animatebottom {
+            from {
+                bottom: -100px;
+                opacity: 0;
+            }
+
+            to {
+                bottom: 0;
+                opacity: 1;
+            }
+        }
+
+        /* Hide the loader initially */
+        #loader {
+            display: block;
+        }
+
+        /* Hide the page content initially */
+        #hello {
+            display: none;
+        }
     </style>
 </head>
 

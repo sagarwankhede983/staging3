@@ -18,10 +18,15 @@
     <!-- https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js -->
     <script type="text/javascript" src="{{ asset('/js/googlecalender.min.js') }}"></script>
     @include('layouts.dataTablesRequiredJS')
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ asset('css/jquery.dataTables.css') }}" />
+    <script type="text/javascript" src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('js/jquery.dataTables.js') }}"></script>
+    <link rel="stylesheet" type="text/css"
+        href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400&display=swap" />
     <style>
         .container1 {
             display: flex;
@@ -129,355 +134,168 @@
                         <div class="card-body">
                             <div class="table-responsive">
 
-                                <table class="table table-bordered table-striped table-hover datatable"
-                                    style="table-layout:fixed;">
+
+                                <table id="datatable" class="display">
                                     <thead>
-                                        <tr>
-                                            <th class="text-left">SR.NO.</th>
-                                            <th class="text-left">EVENT_ID</th>
-                                            <th class="text-left">GROUP_FOLIO_ID</th>
-                                            <th class="text-left">Event_Time_Start</th>
-                                            <th class="text-left">Event_Time_End</th>
-                                            <th class="text-left">QTY_EST</th>
-                                            <th class="text-left">QTY_GTD</th>
-                                            <th class="text-left">QTY_SHOW</th>
-                                            <th class="text-left">QTY_BILL</th>
-                                            <th class="text-left">COMPANY_PARTY_NAME</th>
-                                            <th class="text-left">ROOM</th>
-                                            <th class="text-left">CAT_EVENT_TYPE</th>
-                                            <th class="text-left">CAT_ROOM_SETUP</th>
-                                            <th class="text-left">START_DATETIME</th>
-                                            <th class="text-left">END_DATETIME</th>
-                                            <th class="text-left">NAME</th>
-                                            <th class="text-left">EVENT_TIME_START</th>
-                                            <th class="text-left">EVENT_TIME_END</th>
-                                            <th class="text-left">FOLIO_ID</th>
-                                            {{-- <th class="text-left">GROUP_FOLIO_ID_1</th> --}}
-                                            <th class="text-left">FOLIO_SUBTOTAL</th>
-                                            <th class="text-left">FOLIO_SURCHARGES</th>
-                                            <th class="text-left">FOLIO_TOTAL</th>
-                                            <th class="text-left">FOLIO_PAYMENTS</th>
-                                            <th class="text-left">FOLIO_BALANCE</th>
-                                            <th class="text-left">FOLIO_SETTLED</th>
-                                            <th class="text-left">FOLIO_OPEN_DATE</th>
-                                            <th class="text-left">FOLIO_CLOSE_DATE</th>
-                                            <th class="text-left">FOLIO_OPERATING_DAY</th>
-                                            <th class="text-left">FOLIO_STAFF_ID</th>
-                                            <th class="text-left">FOLIO_CUSTOMER_ID</th>
-                                            <th class="text-left">FOLIO_LOCATION</th>
-                                            <th class="text-left">FOLIO_ITEM_ID</th>
-                                            <th class="text-left">ITEM_ID</th>
-                                            <th class="text-left">ITEM_NAME</th>
-                                            <th class="text-left">PRICE</th>
-                                            <th class="text-left">QTY</th>
-                                            <th class="text-left">DISCOUNT</th>
-                                            <th class="text-left">DISC_TYPE</th>
-                                            <th class="text-left">EXT_PRICE</th>
-                                            <th class="text-left">PRICE_WITH_SURCHARGES</th>
-                                            <th class="text-left">ITEM_CHARGE_CODE</th>
-                                            <th class="text-left">ITEM_STAFF_ID</th>
-                                            <th class="text-left">ITEM_TXN_DATE</th>
-                                            <th class="text-left">ITEM_CUSTOMER_ID</th>
-                                            <th class="text-left">COST_AT_PURCHASE</th>
-                                            <th class="text-left">DEFERRED</th>
-                                            <th class="text-left">FOLIO_ITEM_DETAIL_ID</th>
-                                            <th class="text-left">DETAIL_CHARGE_CODE</th>
-                                            <th class="text-left">HAS_VALUE</th>
-                                            <th class="text-left">CHARGE_CODE_AMOUNT</th>
-                                            <th class="text-left">EST_ARRIVAL_DATE</th>
-                                            <th class="text-left">CAT_SALES_STAGE</th>
-                                            <th class="text-left">FOLIO_LOCK_DATETIME</th>
-                                            <th class="text-left">TAX_EXEMPT_TYPE</th>
-                                            <th class="text-left">LAST_MODIFIED_DATE</th>
-                                            <th class="text-left">ITEM_TYPE</th>
-                                            <th class="text-left">PACKAGE_ITEM</th>
-                                            <th class="text-left">PACKAGE_ORDER</th>
-                                            <th class="text-left">MARKET_CODE</th>
-                                            {{-- <th class="text-left">COMPANY_PARTY_NAME_1</th> --}}
-                                            <th class="text-left">ITEM_DESC</th>
-                                            {{-- <th class="text-left">QTY_EST_1</th>
-                                            <th class="text-left">QTY_GTD_1</th>
-                                            <th class="text-left">QTY_SHOW_1</th>
-                                            <th class="text-left">QTY_BILL_1</th> --}}
-                                            <th class="text-left">CUSTOMER_ID</th>
-                                            <th class="text-left">FIRST_NAME</th>
-                                            <th class="text-left">LAST_NAME</th>
-                                            <th class="text-left">COMPANY_NAME</th>
-                                            <th class="text-left">SALUTATION</th>
-                                            {{-- <th class="text-left">NAME_1</th> --}}
-                                            <th class="text-left">ADDRESS</th>
-                                            <th class="text-left">ADDRESS_LINE_2</th>
-                                            <th class="text-left">CITY</th>
-                                            <th class="text-left">STATE_PROV</th>
-                                            <th class="text-left">POSTAL_CODE</th>
-                                            <th class="text-left">COUNTRY</th>
-                                            <th class="text-left">HOME_PHONE</th>
-                                            <th class="text-left">WORK_PHONE</th>
-                                            <th class="text-left">WORK_EXT</th>
-                                            <th class="text-left">OTHER_PHONE</th>
-                                            <th class="text-left">FAX_NUMBER</th>
-                                            <th class="text-left">MAIN_PHONE</th>
-                                            <th class="text-left">PHONE_MAIN</th>
-                                            <th class="text-left">EMAIL_ADDRESS</th>
-                                            <th class="text-left">CUSTOMER_SINCE</th>
-                                            <th class="text-left">BIRTH_DATE</th>
-                                            <th class="text-left">GENDER</th>
-                                            <th class="text-left">CREATED_IN_APP</th>
-                                            <th class="text-left">TOTAL_PURCHASED</th>
-                                            <th class="text-left">CAT_PURCHASED</th>
-                                            <th class="text-left">GLF_PURCHASED</th>
-                                            <th class="text-left">FIT_PURCHASED</th>
-                                            <th class="text-left">POS_PURCHASED</th>
-                                            <th class="text-left">PMS_PURCHASED</th>
-                                            <th class="text-left">RET_PURCHASED</th>
-                                            <th class="text-left">SKI_PURCHASED</th>
-                                            <th class="text-left">SPA_PURCHASED</th>
-                                            <th class="text-left">SPA_PRODUCTS</th>
-                                            <th class="text-left">SPA_SERVICES</th>
-                                            <th class="text-left">OCCUPATION</th>
-                                            <th class="text-left">IS_GROUP</th>
-                                            <th class="text-left">GROUP_ID</th>
-                                            <th class="text-left">RELATIONSHIP</th>
-                                            <th class="text-left">SOURCE</th>
-                                            <th class="text-left">REFERRED_BY_ID</th>
-                                            <th class="text-left">APPROVED_BY</th>
-                                            <th class="text-left">DIRECT_BILL</th>
-                                            <th class="text-left">MARKET_SOURCE</th>
-                                            <th class="text-left">CUSTOMER_TYPE</th>
-                                            <th class="text-left">CREATED_IN_LOC</th>
-                                            <th class="text-left">NO_CALL</th>
-                                            <th class="text-left">NO_MAIL</th>
-                                            <th class="text-left">NO_EMAIL</th>
-                                            <th class="text-left">SOURCE_CUST_ID</th>
-                                            <th class="text-left">OLD_CAT_PURCHASED</th>
-                                            <th class="text-left">OLD_GLF_PURCHASED</th>
-                                            <th class="text-left">OLD_FIT_PURCHASED</th>
-                                            <th class="text-left">OLD_POS_PURCHASED</th>
-                                            <th class="text-left">OLD_PMS_PURCHASED</th>
-                                            <th class="text-left">OLD_SKI_PURCHASED</th>
-                                            <th class="text-left">OLD_SPA_PURCHASED</th>
-                                            <th class="text-left">OLD_SPA_PRODUCTS</th>
-                                            <th class="text-left">OLD_SPA_SERVICES</th>
-                                            <th class="text-left">CREATED_DATE</th>
-                                            <th class="text-left">CREATE_STAFF_ID</th>
-                                            <th class="text-left">CHANGE_STAFF_ID</th>
-                                            <th class="text-left">CUSTOMER_CODE</th>
-                                            <th class="text-left">VIP_LEVEL</th>
-                                            <th class="text-left">DEFAULT_DISCOUNT</th>
-                                            <th class="text-left">DEFAULT_DISCOUNT_EXP</th>
-                                            <th class="text-left">DEFAULT_DISCOUNT_EFF</th>
-                                            <th class="text-left">EXCLUDE_LOYALTY</th>
-                                            <th class="text-left">CC_TYPE</th>
-                                            <th class="text-left">CC_EXPIRY</th>
-                                            <th class="text-left">OTHER_ADDRESS</th>
-                                            <th class="text-left">OTHER_ADDRESS_LINE_2</th>
-                                            <th class="text-left">OTHER_CITY</th>
-                                            <th class="text-left">OTHER_STATE_PROV</th>
-                                            <th class="text-left">OTHER_POSTAL_CODE</th>
-                                            <th class="text-left">OTHER_COUNTRY</th>
-                                            <th class="text-left">SOURCE_IFACE</th>
-                                            <th class="text-left">SOURCE_SYS_ID</th>
-                                            <th class="text-left">SOURCE_SYS_NAME</th>
-                                            <th class="text-left">LANGUAGE</th>
-                                            <th class="text-left">LAST_VISIT_DATE</th>
-                                            <th class="text-left">DEMOGRAPHIC</th>
-                                            <th class="text-left">DEFAULT_PLAYER_TYPE</th>
-                                            <th class="text-left">ALL_CUSTOMER_GUID</th>
-                                            {{-- <th class="text-left">LAST_MODIFIED_DATE_1</th> --}}
-                                            <th class="text-left">CC_CHANGE_DATE</th>
-                                            <th class="text-left">SEND_METHOD</th>
-                                            <th class="text-left">CLUB_PROSPECT</th>
-                                            <th class="text-left">CLUB_REFERENCE</th>
-                                            {{-- <th class="text-left">TAX_EXEMPT_TYPE_1</th> --}}
-                                            <th class="text-left">HOME_COUNTRY_CODE</th>
-                                            <th class="text-left">WORK_COUNTRY_CODE</th>
-                                            <th class="text-left">MOBILE_COUNTRY_CODE</th>
-                                            <th class="text-left">OTHER_COUNTRY_CODE</th>
-                                            <th class="text-left">MAIN_COUNTRY_CODE</th>
-                                            <th class="text-left">MOBILE_PHONE</th>
-                                            <th class="text-left">CLUB_ACTIVATION_DATE</th>
-                                            <th class="text-left">PMS_NUM_VISITS</th>
-                                            <th class="text-left">PMS_OLD_NUM_VISITS</th>
+                                        <tr align="left">
+                                            <th>event_id</th>
+                                            <th>group_folio_id</th>
+                                            <th>event_time_start</th>
+                                            <th>event_time_end</th>
+                                            <th>qty_est</th>
+                                            <th>qty_gtd</th>
+                                            <th>qty_show</th>
+                                            <th>qty_bill</th>
+                                            <th>company_party_name</th>
+                                            <th>room</th>
+                                            <th>cat_event_type</th>
+                                            <th>cat_room_setup</th>
+                                            <th>start_datetime</th>
+                                            <th>end_datetime</th>
+                                            <th>name</th>
+                                            <th>event_time_start</th>
+                                            <th>event_time_end</th>
+                                            <th>folio_id</th>
+                                            <th>folio_subtotal</th>
+                                            <th>folio_surcharges</th>
+                                            <th>folio_total</th>
+                                            <th>folio_payments</th>
+                                            <th>folio_balance</th>
+                                            <th>folio_settled</th>
+                                            <th>folio_open_date</th>
+                                            <th>folio_close_date</th>
+                                            <th>folio_operating_day</th>
+                                            <th>folio_staff_id</th>
+                                            <th>folio_customer_id</th>
+                                            <th>folio_location</th>
+                                            <th>folio_item_id</th>
+                                            <th>item_id</th>
+                                            <th>item_name</th>
+                                            <th>price</th>
+                                            <th>qty</th>
+                                            <th>discount</th>
+                                            <th>disc_type</th>
+                                            <th>ext_price</th>
+                                            <th>price_with_surcharges</th>
+                                            <th>item_charge_code</th>
+                                            <th>item_staff_id</th>
+                                            <th>item_txn_date</th>
+                                            <th>item_customer_id</th>
+                                            <th>cost_at_purchase</th>
+                                            <th>deferred</th>
+                                            <th>folio_item_detail_id</th>
+                                            <th>detail_charge_code</th>
+                                            <th>has_value</th>
+                                            <th>charge_code_amount</th>
+                                            <th>est_arrival_date</th>
+                                            <th>cat_sales_stage</th>
+                                            <th>folio_lock_datetime</th>
+                                            <th>tax_exempt_type</th>
+                                            <th>last_modified_date</th>
+                                            <th>item_type</th>
+                                            <th>package_item</th>
+                                            <th>package_order</th>
+                                            <th>market_code</th>
+                                            <th>item_desc</th>
+                                            <th>customer_id</th>
+                                            <th>first_name</th>
+                                            <th>last_name</th>
+                                            <th>company_name</th>
+                                            <th>salutation</th>
+                                            <th>address</th>
+                                            <th>address_line_2</th>
+                                            <th>city</th>
+                                            <th>state_prov</th>
+                                            <th>postal_code</th>
+                                            <th>country</th>
+                                            <th>home_phone</th>
+                                            <th>work_phone</th>
+                                            <th>work_ext</th>
+                                            <th>other_phone</th>
+                                            <th>fax_number</th>
+                                            <th>main_phone</th>
+                                            <th>phone_main</th>
+                                            <th>email_address</th>
+                                            <th>customer_since</th>
+                                            <th>birth_date</th>
+                                            <th>gender</th>
+                                            <th>created_in_app</th>
+                                            <th>total_purchased</th>
+                                            <th>cat_purchased</th>
+                                            <th>glf_purchased</th>
+                                            <th>fit_purchased</th>
+                                            <th>pos_purchased</th>
+                                            <th>pms_purchased</th>
+                                            <th>ret_purchased</th>
+                                            <th>ski_purchased</th>
+                                            <th>spa_purchased</th>
+                                            <th>spa_products</th>
+                                            <th>spa_services</th>
+                                            <th>occupation</th>
+                                            <th>is_group</th>
+                                            <th>group_id</th>
+                                            <th>relationship</th>
+                                            <th>source</th>
+                                            <th>referred_by_id</th>
+                                            <th>approved_by</th>
+                                            <th>direct_bill</th>
+                                            <th>market_source</th>
+                                            <th>customer_type</th>
+                                            <th>created_in_loc</th>
+                                            <th>no_call</th>
+                                            <th>no_mail</th>
+                                            <th>no_email</th>
+                                            <th>source_cust_id</th>
+                                            <th>old_cat_purchased</th>
+                                            <th>old_glf_purchased</th>
+                                            <th>old_fit_purchased</th>
+                                            <th>old_pos_purchased</th>
+                                            <th>old_pms_purchased</th>
+                                            <th>old_ski_purchased</th>
+                                            <th>old_spa_purchased</th>
+                                            <th>old_spa_products</th>
+                                            <th>old_spa_services</th>
+                                            <th>created_date</th>
+                                            <th>create_staff_id</th>
+                                            <th>change_staff_id</th>
+                                            <th>customer_code</th>
+                                            <th>vip_level</th>
+                                            <th>default_discount</th>
+                                            <th>default_discount_exp</th>
+                                            <th>default_discount_eff</th>
+                                            <th>exclude_loyalty</th>
+                                            <th>cc_type</th>
+                                            <th>cc_expiry</th>
+                                            <th>other_address</th>
+                                            <th>other_address_line_2</th>
+                                            <th>other_city</th>
+                                            <th>other_state_prov</th>
+                                            <th>other_postal_code</th>
+                                            <th>other_country</th>
+                                            <th>source_iface</th>
+                                            <th>source_sys_id</th>
+                                            <th>source_sys_name</th>
+                                            <th>language</th>
+                                            <th>last_visit_date</th>
+                                            <th>demographic</th>
+                                            <th>default_player_type</th>
+                                            <th>all_customer_guid</th>
+                                            <th>cc_change_date</th>
+                                            <th>send_method</th>
+                                            <th>club_prospect</th>
+                                            <th>club_reference</th>
+                                            <th>home_country_code</th>
+                                            <th>work_country_code</th>
+                                            <th>mobile_country_code</th>
+                                            <th>other_country_code</th>
+                                            <th>main_country_code</th>
+                                            <th>mobile_phone</th>
+                                            <th>club_activation_date</th>
+                                            <th>pms_num_visits</th>
+                                            <th>pms_old_num_visit</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <?php
-                                              $i=0;
-                                              foreach($data_ar as $id => $eventcount)  {
-                                              ?>
-                                        <tr style="align-content: center">
-                                            <td class="text-left">{{ $i + 1 }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['event_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['group_folio_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['event_time_start'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['event_time_end'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_est'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_gtd'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_show'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_bill'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['company_party_name'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['room'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['cat_event_type'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['cat_room_setup'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['start_datetime'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['end_datetime'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['name'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['event_time_start'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['event_time_end'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_id'] }}</td>
-                                            {{-- <td class="text-left">{{ $data_ar[$i]['group_folio_id_1'] }}</td> --}}
-                                            <td class="text-left">{{ $data_ar[$i]['folio_subtotal'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_surcharges'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_total'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_payments'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_balance'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_settled'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_open_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_close_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_operating_day'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_staff_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_customer_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_location'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_item_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['item_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['item_name'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['price'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['discount'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['disc_type'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['ext_price'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['price_with_surcharges'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['item_charge_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['item_staff_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['item_txn_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['item_customer_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['cost_at_purchase'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['deferred'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_item_detail_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['detail_charge_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['has_value'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['charge_code_amount'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['est_arrival_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['cat_sales_stage'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['folio_lock_datetime'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['tax_exempt_type'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['last_modified_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['item_type'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['package_item'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['package_order'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['market_code'] }}</td>
-                                            {{-- <td class="text-left">{{ $data_ar[$i]['company_party_name_1'] }}</td> --}}
-                                            <td class="text-left">{{ $data_ar[$i]['item_desc'] }}</td>
-                                            {{-- <td class="text-left">{{ $data_ar[$i]['qty_est_1'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_gtd_1'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_show_1'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['qty_bill_1'] }}</td> --}}
-                                            <td class="text-left">{{ $data_ar[$i]['customer_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['first_name'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['last_name'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['company_name'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['salutation'] }}</td>
-                                            {{-- <td class="text-left">{{ $data_ar[$i]['name_1'] }}</td> --}}
-                                            <td class="text-left">{{ $data_ar[$i]['address'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['address_line_2'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['city'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['state_prov'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['postal_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['country'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['home_phone'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['work_phone'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['work_ext'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['other_phone'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['fax_number'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['main_phone'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['phone_main'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['email_address'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['customer_since'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['birth_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['gender'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['created_in_app'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['total_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['cat_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['glf_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['fit_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['pos_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['pms_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['ret_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['ski_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['spa_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['spa_products'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['spa_services'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['occupation'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['is_group'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['group_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['relationship'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['source'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['referred_by_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['approved_by'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['direct_bill'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['market_source'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['customer_type'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['created_in_loc'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['no_call'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['no_mail'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['no_email'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['source_cust_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_cat_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_glf_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_fit_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_pos_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_pms_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_ski_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_spa_purchased'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_spa_products'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['old_spa_services'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['created_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['create_staff_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['change_staff_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['customer_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['vip_level'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['default_discount'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['default_discount_exp'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['default_discount_eff'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['exclude_loyalty'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['cc_type'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['cc_expiry'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['other_address'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['other_address_line_2'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['other_city'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['other_state_prov'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['other_postal_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['other_country'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['source_iface'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['source_sys_id'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['source_sys_name'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['language'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['last_visit_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['demographic'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['default_player_type'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['all_customer_guid'] }}</td>
-                                            {{-- <td class="text-left">{{ $data_ar[$i]['last_modified_date_1'] }}</td> --}}
-                                            <td class="text-left">{{ $data_ar[$i]['cc_change_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['send_method'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['club_prospect'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['club_reference'] }}</td>
-                                            {{-- <td class="text-left">{{ $data_ar[$i]['tax_exempt_type_1'] }}</td> --}}
-                                            <td class="text-left">{{ $data_ar[$i]['home_country_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['work_country_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['mobile_country_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['other_country_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['main_country_code'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['mobile_phone'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['club_activation_date'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['pms_num_visits'] }}</td>
-                                            <td class="text-left">{{ $data_ar[$i]['pms_old_num_visits'] }}</td>
-                                        </tr>
-                                        <?php
-                                                  $i++;
-                                                  }
-                                                 ?>
-                                                 {{-- {{ dd($data_ar) }} --}}
-                                    </tbody>
+                                    <tbody></tbody>
                                 </table>
                             </div>
                         </div>
@@ -488,38 +306,528 @@
     </div>
     <script src="../js/scripts.js"></script>
     <script>
-        $('.datatable').DataTable({
-            scrollX: true,
-            scrollY: "600px",
-            scrollCollapse: true,
+        $(document).ready(function() {
+            $.ajax({
+                url: "{{ url('users-data') }}",
+                method: "GET",
+                dataType: "json",
+                success: function(response) {
+                    console.log("Ajax Response:", response);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Ajax Error:", error);
+                }
+            });
 
-            dom: 'Bfrtip',
-            buttons: [
-                'copy',
-                {
-                    extend: 'csv',
-                    title: 'staffbookingdata'
-                },
-                {
-                    extend: 'excel',
-                    title: 'staffbookingdata'
-                },
-                {
-                    extend: 'pdf',
-                    title: 'staffbookingdata',
-                    orientation: 'landscape'
-                },
-                'print',
-                // {
-                //     text: 'Download Excel',
-                //     className: 'custom-excel-button',
-                //     action: function(e, dt, node, config) {
-                //         $('#hiddenDownloadButton').click();
-                //     }
-                // }
-            ],
-            pageLength: 10
+            $('#datatable').DataTable({
+                processing: true,
+                serverSide: true,
+                order: [
+                    [0, "desc"]
+                ],
+                ajax: "{{ url('users-data') }}",
+                columns: [{
+                        data: 'id'
+                    }, {
+                        data: 'event_id'
+                    },
+                    {
+                        data: 'group_folio_id'
+                    },
+                    {
+                        data: 'event_time_start'
+                    },
+                    {
+                        data: 'event_time_end'
+                    },
+                    {
+                        data: 'qty_est'
+                    },
+                    {
+                        data: 'qty_gtd'
+                    },
+                    {
+                        data: 'qty_show'
+                    },
+                    {
+                        data: 'qty_bill'
+                    },
+                    {
+                        data: 'company_party_name'
+                    },
+                    {
+                        data: 'room'
+                    },
+                    {
+                        data: 'cat_event_type'
+                    },
+                    {
+                        data: 'cat_room_setup'
+                    },
+                    {
+                        data: 'start_datetime'
+                    },
+                    {
+                        data: 'end_datetime'
+                    },
+                    {
+                        data: 'name'
+                    },
+                    {
+                        data: 'event_time_start'
+                    },
+                    {
+                        data: 'event_time_end'
+                    },
+                    {
+                        data: 'folio_id'
+                    },
+                    {
+                        data: 'folio_subtotal'
+                    },
+                    {
+                        data: 'folio_surcharges'
+                    },
+                    {
+                        data: 'folio_total'
+                    },
+                    {
+                        data: 'folio_payments'
+                    },
+                    {
+                        data: 'folio_balance'
+                    },
+                    {
+                        data: 'folio_settled'
+                    },
+                    {
+                        data: 'folio_open_date'
+                    },
+                    {
+                        data: 'folio_close_date'
+                    },
+                    {
+                        data: 'folio_operating_day'
+                    },
+                    {
+                        data: 'folio_staff_id'
+                    },
+                    {
+                        data: 'folio_customer_id'
+                    },
+                    {
+                        data: 'folio_location'
+                    },
+                    {
+                        data: 'folio_item_id'
+                    },
+                    {
+                        data: 'item_id'
+                    },
+                    {
+                        data: 'item_name'
+                    },
+                    {
+                        data: 'price'
+                    },
+                    {
+                        data: 'qty'
+                    },
+                    {
+                        data: 'discount'
+                    },
+                    {
+                        data: 'disc_type'
+                    },
+                    {
+                        data: 'ext_price'
+                    },
+                    {
+                        data: 'price_with_surcharges'
+                    },
+                    {
+                        data: 'item_charge_code'
+                    },
+                    {
+                        data: 'item_staff_id'
+                    },
+                    {
+                        data: 'item_txn_date'
+                    },
+                    {
+                        data: 'item_customer_id'
+                    },
+                    {
+                        data: 'cost_at_purchase'
+                    },
+                    {
+                        data: 'deferred'
+                    },
+                    {
+                        data: 'folio_item_detail_id'
+                    },
+                    {
+                        data: 'detail_charge_code'
+                    },
+                    {
+                        data: 'has_value'
+                    },
+                    {
+                        data: 'charge_code_amount'
+                    },
+                    {
+                        data: 'est_arrival_date'
+                    },
+                    {
+                        data: 'cat_sales_stage'
+                    },
+                    {
+                        data: 'folio_lock_datetime'
+                    },
+                    {
+                        data: 'tax_exempt_type'
+                    },
+                    {
+                        data: 'last_modified_date'
+                    },
+                    {
+                        data: 'item_type'
+                    },
+                    {
+                        data: 'package_item'
+                    },
+                    {
+                        data: 'package_order'
+                    },
+                    {
+                        data: 'market_code'
+                    },
+                    {
+                        data: 'item_desc'
+                    },
+                    {
+                        data: 'customer_id'
+                    },
+                    {
+                        data: 'first_name'
+                    },
+                    {
+                        data: 'last_name'
+                    },
+                    {
+                        data: 'company_name'
+                    },
+                    {
+                        data: 'salutation'
+                    },
+                    {
+                        data: 'address'
+                    },
+                    {
+                        data: 'address_line_2'
+                    },
+                    {
+                        data: 'city'
+                    },
+                    {
+                        data: 'state_prov'
+                    },
+                    {
+                        data: 'postal_code'
+                    },
+                    {
+                        data: 'country'
+                    },
+                    {
+                        data: 'home_phone'
+                    },
+                    {
+                        data: 'work_phone'
+                    },
+                    {
+                        data: 'work_ext'
+                    },
+                    {
+                        data: 'other_phone'
+                    },
+                    {
+                        data: 'fax_number'
+                    },
+                    {
+                        data: 'main_phone'
+                    },
+                    {
+                        data: 'phone_main'
+                    },
+                    {
+                        data: 'email_address'
+                    },
+                    {
+                        data: 'customer_since'
+                    },
+                    {
+                        data: 'birth_date'
+                    },
+                    {
+                        data: 'gender'
+                    },
+                    {
+                        data: 'created_in_app'
+                    },
+                    {
+                        data: 'total_purchased'
+                    },
+                    {
+                        data: 'cat_purchased'
+                    },
+                    {
+                        data: 'glf_purchased'
+                    },
+                    {
+                        data: 'fit_purchased'
+                    },
+                    {
+                        data: 'pos_purchased'
+                    },
+                    {
+                        data: 'pms_purchased'
+                    },
+                    {
+                        data: 'ret_purchased'
+                    },
+                    {
+                        data: 'ski_purchased'
+                    },
+                    {
+                        data: 'spa_purchased'
+                    },
+                    {
+                        data: 'spa_products'
+                    },
+                    {
+                        data: 'spa_services'
+                    },
+                    {
+                        data: 'occupation'
+                    },
+                    {
+                        data: 'is_group'
+                    },
+                    {
+                        data: 'group_id'
+                    },
+                    {
+                        data: 'relationship'
+                    },
+                    {
+                        data: 'source'
+                    },
+                    {
+                        data: 'referred_by_id'
+                    },
+                    {
+                        data: 'approved_by'
+                    },
+                    {
+                        data: 'direct_bill'
+                    },
+                    {
+                        data: 'market_source'
+                    },
+                    {
+                        data: 'customer_type'
+                    },
+                    {
+                        data: 'created_in_loc'
+                    },
+                    {
+                        data: 'no_call'
+                    },
+                    {
+                        data: 'no_mail'
+                    },
+                    {
+                        data: 'no_email'
+                    },
+                    {
+                        data: 'source_cust_id'
+                    },
+                    {
+                        data: 'old_cat_purchased'
+                    },
+                    {
+                        data: 'old_glf_purchased'
+                    },
+                    {
+                        data: 'old_fit_purchased'
+                    },
+                    {
+                        data: 'old_pos_purchased'
+                    },
+                    {
+                        data: 'old_pms_purchased'
+                    },
+                    {
+                        data: 'old_ski_purchased'
+                    },
+                    {
+                        data: 'old_spa_purchased'
+                    },
+                    {
+                        data: 'old_spa_products'
+                    },
+                    {
+                        data: 'old_spa_services'
+                    },
+                    {
+                        data: 'created_date'
+                    },
+                    {
+                        data: 'create_staff_id'
+                    },
+                    {
+                        data: 'change_staff_id'
+                    },
+                    {
+                        data: 'customer_code'
+                    },
+                    {
+                        data: 'vip_level'
+                    },
+                    {
+                        data: 'default_discount'
+                    },
+                    {
+                        data: 'default_discount_exp'
+                    },
+                    {
+                        data: 'default_discount_eff'
+                    },
+                    {
+                        data: 'exclude_loyalty'
+                    },
+                    {
+                        data: 'cc_type'
+                    },
+                    {
+                        data: 'cc_expiry'
+                    },
+                    {
+                        data: 'other_address'
+                    },
+                    {
+                        data: 'other_address_line_2'
+                    },
+                    {
+                        data: 'other_city'
+                    },
+                    {
+                        data: 'other_state_prov'
+                    },
+                    {
+                        data: 'other_postal_code'
+                    },
+                    {
+                        data: 'other_country'
+                    },
+                    {
+                        data: 'source_iface'
+                    },
+                    {
+                        data: 'source_sys_id'
+                    },
+                    {
+                        data: 'source_sys_name'
+                    },
+                    {
+                        data: 'language'
+                    },
+                    {
+                        data: 'last_visit_date'
+                    },
+                    {
+                        data: 'demographic'
+                    },
+                    {
+                        data: 'default_player_type'
+                    },
+                    {
+                        data: 'all_customer_guid'
+                    },
+                    {
+                        data: 'cc_change_date'
+                    },
+                    {
+                        data: 'send_method'
+                    },
+                    {
+                        data: 'club_prospect'
+                    },
+                    {
+                        data: 'club_reference'
+                    },
+                    {
+                        data: 'home_country_code'
+                    },
+                    {
+                        data: 'work_country_code'
+                    },
+                    {
+                        data: 'mobile_country_code'
+                    },
+                    {
+                        data: 'other_country_code'
+                    },
+                    {
+                        data: 'main_country_code'
+                    },
+                    {
+                        data: 'mobile_phone'
+                    },
+                    {
+                        data: 'club_activation_date'
+                    },
+                    {
+                        data: 'pms_num_visits'
+                    },
+                    {
+                        data: 'pms_old_num_visits'
+                    }
+                ]
+            });
         });
+        // $('.datatable').DataTable({
+        //     scrollX: true,
+        //     scrollY: "600px",
+        //     scrollCollapse: true,
+
+        //     dom: 'Bfrtip',
+        //     buttons: [
+        //         'copy',
+        //         {
+        //             extend: 'csv',
+        //             title: 'staffbookingdata'
+        //         },
+        //         {
+        //             extend: 'excel',
+        //             title: 'staffbookingdata'
+        //         },
+        //         {
+        //             extend: 'pdf',
+        //             title: 'staffbookingdata',
+        //             orientation: 'landscape'
+        //         },
+        //         'print',
+        //         // {
+        //         //     text: 'Download Excel',
+        //         //     className: 'custom-excel-button',
+        //         //     action: function(e, dt, node, config) {
+        //         //         $('#hiddenDownloadButton').click();
+        //         //     }
+        //         // }
+        //     ],
+        //     pageLength: 10
+        // });
         // $(document).ready(function() {
         //     // Assign an ID to the custom Excel button
         //     $('.custom-excel-button').attr('id', 'download');
@@ -563,7 +871,7 @@
 
         var select = document.getElementById("dynamic_select");
         var currentYear = new Date().getFullYear();
-        if(year != currentYear){
+        if (year != currentYear) {
             currentYear = year;
         }
         var startYear = currentYear - 10; // Adjust as needed
@@ -594,10 +902,9 @@
         // Initial update of the dates based on the default selected year
         fromdate = document.getElementById("demodateF").value;
         todate = document.getElementById("demodateT").value;
-        if(fromdate.getFullYear() === year && todate.getFullYear() === year){
+        if (fromdate.getFullYear() === year && todate.getFullYear() === year) {
             updateDates();
         }
-
     </script>
     <script>
         function fun1() {
@@ -784,7 +1091,8 @@
                 document.getElementById("demodateT").value = toDate;
                 var todate = document.getElementById("demodateT").value;
                 var year = document.getElementById("dynamic_select").value;
-                window.location = "/dateFilterStaffBookingRevised/" + btoa(fromdate) + "/" + btoa(todate) + "/" + btoa(year);
+                window.location = "/dateFilterStaffBookingRevised/" + btoa(fromdate) + "/" + btoa(todate) +
+                    "/" + btoa(year);
             });
 
             $('#demodateT').on('change', function() {
@@ -792,7 +1100,8 @@
                 var fromdate = document.getElementById("demodateF").value;
                 var todate = document.getElementById("demodateT").value;
                 var year = document.getElementById("dynamic_select");
-                window.location = "/dateFilterStaffBookingRevised/" + btoa(fromdate) + "/" + btoa(todate) + "/" + btoa(year);
+                window.location = "/dateFilterStaffBookingRevised/" + btoa(fromdate) + "/" + btoa(todate) +
+                    "/" + btoa(year);
             });
 
             $('#download').on('click', function() {

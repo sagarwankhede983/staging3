@@ -142,3 +142,4 @@ Route::get('/getSheduleFilterR/{fromdate}/{todate}/{guide_id}/{hunt_type}/{flag}
 
  Route::get('/fromDashboardStaffBookingRevised', 'EventController@StaffBookingRevised');
  Route::get('/dateFilterStaffBookingRevised/{fromdate}/{todate}/{year}','EventController@StaffBookingDateFilterRevised');
+ Route::get('/users-data','EventController@getData');

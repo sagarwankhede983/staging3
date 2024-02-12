@@ -1279,13 +1279,6 @@ class EventController extends Controller
         // $todate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "31";
         $value = session()->get('id');
         if ($value != "") {
-            // $data = DB::select("select vce.group_folio_id,vc.name Company_Party_Name,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End
-            // ,vce.room Room,vce.cat_event_type Event_Type,vce.name Sales_rep,vcs.cat_sales_stage Sales_Stage,vce.qty_est,vce.qty_gtd,vc.vip_level,vcs.folio_location,vcs.folio_total
-            // FROM DEV.VR_CAT_EVENT vce
-            // inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
-            // inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
-            // where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate'
-            // order by vce.name");
 
             $data = DB::select("select vce.*,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End,vcs.*,vc.*
             FROM DEV.VR_CAT_EVENT vce
@@ -1294,8 +1287,6 @@ class EventController extends Controller
             where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate' and ROWNUM<10
             order by vce.name");
 
-            $users = DB::table('dev.VR_CAT_EVENT')->get();
-            dd($users);
             $data_ar = json_decode(json_encode($data), true);
             // dd($data_ar);
             $todayDate = date('m-d-Y');
@@ -1341,7 +1332,6 @@ class EventController extends Controller
             inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
             where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate'
             order by vce.name");
-// dd($data);
             $data_ar = json_decode(json_encode($data), true);
             $todayDate = date('m-d-Y');
             $tempTdayDate = explode("-", $fromdate);
@@ -1353,5 +1343,93 @@ class EventController extends Controller
             // dd($year);
             return view('staffbookingRevised', compact('data_ar', 'todayDate', 'fromdate', 'todate', 'year'));
         }
+    }
+
+    public function getData(Request $request)
+    {
+
+        $draw                 =         $request->get('draw'); // Internal use
+        $start                 =         $request->get("start"); // where to start next records for pagination
+        $rowPerPage         =         $request->get("length"); // How many recods needed per page for pagination
+
+        $orderArray        =         $request->get('order');
+        $columnNameArray     =         $request->get('columns'); // It will give us columns array
+
+        $searchArray         =         $request->get('search');
+        $columnIndex         =         $orderArray[0]['column'];  // This will let us know,
+        // which column index should be sorted
+        // 0 = id, 1 = name, 2 = email , 3 = created_at
+
+        $columnName         =         $columnNameArray[$columnIndex]['data']; // Here we will get column name,
+        // Base on the index we get
+
+        $columnSortOrder     =         $orderArray[0]['dir']; // This will get us order direction(ASC/DESC)
+        $searchValue         =         $searchArray['value']; // This is search value
+
+
+        $fromdate = date('Y-m-d', strtotime('2024-01-01'));
+        $todate = date('Y-m-d', strtotime('2024-12-31'));
+
+        $events =  DB::table('dev.vr_cat_event as vce')
+            ->select(
+                'vce.*',
+                DB::raw("TO_CHAR(vce.start_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_End"),
+                'vcs.*',
+                'vc.*'
+            )
+            ->join('dev.vr_cat_sales as vcs', 'vce.event_id', '=', 'vcs.folio_id')
+            ->join('dev.vr_customers as vc', 'vc.customer_id', '=', 'vcs.folio_customer_id')
+            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+
+        $total = $events->count();
+
+        $totalFilter =  DB::table('dev.vr_cat_event as vce')
+            ->select(
+                'vce.*',
+                DB::raw("TO_CHAR(vce.start_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_End"),
+                'vcs.*',
+                'vc.*'
+            )
+            ->join('dev.vr_cat_sales as vcs', 'vce.event_id', '=', 'vcs.folio_id')
+            ->join('dev.vr_customers as vc', 'vc.customer_id', '=', 'vcs.folio_customer_id')
+            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+
+        if (!empty($searchValue)) {
+            $totalFilter = $totalFilter->where('event_id', 'like', '%' . $searchValue . '%');
+            $totalFilter = $totalFilter->orWhere('group_folio_id', 'like', '%' . $searchValue . '%');
+        }
+        $totalFilter = $totalFilter->count();
+
+        $arrData =  DB::table('dev.vr_cat_event as vce')
+            ->select(
+                'vce.*',
+                DB::raw("TO_CHAR(vce.start_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_End"),
+                'vcs.*',
+                'vc.*'
+            )
+            ->join('dev.vr_cat_sales as vcs', 'vce.event_id', '=', 'vcs.folio_id')
+            ->join('dev.vr_customers as vc', 'vc.customer_id', '=', 'vcs.folio_customer_id')
+            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+
+        $arrData = $arrData->skip($start)->take($rowPerPage);
+        // $arrData = $arrData->orderBy($columnName, $columnSortOrder);
+        if (!empty($searchValue)) {
+            $arrData = $arrData->where('event_id', 'like', '%' . $searchValue . '%');
+            $arrData = $arrData->orWhere('group_folio_id', 'like', '%' . $searchValue . '%');
+        }
+
+        $arrData = $arrData->get();
+
+        $response = array(
+            "draw" => intval($draw),
+            "recordsTotal" => $total,
+            "recordsFiltered" => $totalFilter,
+            "data" => $arrData,
+        );
+
+        return response()->json($response);
     }
 }
