@@ -212,19 +212,35 @@
                                         <thead>
                                             <tr>
                                                 <th class="text-left" id="srno">SR.NO.</th>
-                                                <th class="text-left">Group Folio id</th>
-                                                <th class="text-left">Company Party Name </th>
-                                                <th class="text-left">Event Start Time</th>
-                                                <th class="text-left">Event End Time</th>
-                                                <th class="text-left">Room</th>
-                                                <th class="text-left">Event Type</th>
-                                                <th class="text-left">Sales Rep</th>
-                                                <th class="text-left">Sales Stage</th>
-                                                <th class="text-left">Quantity est </th>
-                                                <th class="text-left">Quantity gtd </th>
-                                                <th class="text-left">VIP Level</th>
-                                                <th class="text-left">Folio Location </th>
-                                                <th class="text-left">Folio Total</th>
+                                                <th>event_id</th>
+                                                <th>group_folio_id</th>
+                                                <th>event_time_start</th>
+                                                <th>event_time_end</th>
+                                                <th>qty_est</th>
+                                                <th>qty_gtd</th>
+                                                <th>qty_show</th>
+                                                <th>qty_bill</th>
+                                                <th>company_party_name</th>
+                                                <th>room</th>
+                                                <th>cat_event_type</th>
+                                                <th>cat_room_setup</th>
+                                                <th>start_datetime</th>
+                                                <th>end_datetime</th>
+                                                <th>name</th>
+                                                <th>folio_id</th>
+                                                <th>folio_subtotal</th>
+                                                <th>folio_surcharges</th>
+                                                <th>folio_total</th>
+                                                <th>folio_payments</th>
+                                                <th>folio_balance</th>
+                                                {{-- <th>folio_settled</th>
+                                                <th>folio_open_date</th>
+                                                <th>folio_close_date</th>
+                                                <th>folio_operating_day</th>
+                                                <th>folio_staff_id</th>
+                                                <th>folio_customer_id</th>
+                                                <th>folio_location</th>
+                                                <th>folio_item_id</th> --}}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -234,19 +250,35 @@
                                               ?>
                                             <tr style="align-content: center">
                                                 <td class="text-left">{{ $i + 1 }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['event_id'] }}</td>
                                                 <td class="text-left">{{ $data_ar[$i]['group_folio_id'] }}</td>
-                                                <td class="text-left">{{ $data_ar[$i]['company_party_name'] }}</td>
                                                 <td class="text-left">{{ $data_ar[$i]['event_time_start'] }}</td>
                                                 <td class="text-left">{{ $data_ar[$i]['event_time_end'] }}</td>
-                                                <td class="text-left">{{ $data_ar[$i]['room'] }}</td>
-                                                <td class="text-left">{{ $data_ar[$i]['event_type'] }}</td>
-                                                <td class="text-left">{{ $data_ar[$i]['sales_rep'] }}</td>
-                                                <td class="text-left">{{ $data_ar[$i]['sales_stage'] }}</td>
                                                 <td class="text-left">{{ $data_ar[$i]['qty_est'] }}</td>
                                                 <td class="text-left">{{ $data_ar[$i]['qty_gtd'] }}</td>
-                                                <td class="text-left">{{ $data_ar[$i]['vip_level'] }}</td>
-                                                <td class="text-left">{{ $data_ar[$i]['folio_location'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['qty_show'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['qty_bill'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['company_party_name'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['room'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['cat_event_type'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['cat_room_setup'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['start_datetime'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['end_datetime'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['name'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_id'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_subtotal'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_surcharges'] }}</td>
                                                 <td class="text-left">{{ $data_ar[$i]['folio_total'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_payments'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_balance'] }}</td>
+                                                {{-- <td class="text-left">{{ $data_ar[$i]['folio_settled'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_open_date'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_close_date'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_operating_day'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_staff_id'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_customer_id'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_location'] }}</td>
+                                                <td class="text-left">{{ $data_ar[$i]['folio_item_id'] }}</td> --}}
                                             </tr>
                                             <?php
                                                   $i++;
@@ -621,6 +653,7 @@
         function showPage() {
             document.getElementById("loader").style.display = "none";
             document.getElementById("hello").style.display = "block";
+            document.getElementById("srno").click();
             document.getElementById("srno").click();
         }
     </script>
