@@ -134,12 +134,7 @@ Route::get('/getSheduleFilterR/{fromdate}/{todate}/{guide_id}/{hunt_type}/{flag}
  Route::get('/oncalenderhuntingeventsinforevised1/{date}','HuntingReservationController@FromHuntingCalenderMultipleRevised');
  Route::post('/ondateHuntingFromPageRevised','HuntingReservationController@OnDateFromCalendarHuntingGuideResevationDetailRevised');
 
-//  COde Added On 02-01-2024
-//  Route::get('/fromDashboardStaffBooking', 'EventController@StaffBooking');
-//  Route::get('/dateFilterStaffBooking/{fromdate}/{todate}/{year}','EventController@StaffBookingDateFilter');
-//  Route::get('/download-excel', 'EventController@downloadExcel')->name('download.excel');
-//  Route::get('/downloadexcel/{fromdate}/{todate}', 'EventController@downloadExcel');
+//  Code Added On 02-01-2024
 
  Route::get('/fromDashboardStaffBookingRevised', 'EventController@StaffBookingRevised');
-//  Route::get('/dateFilterStaffBookingRevised/{fromdate}/{todate}/{year}','EventController@StaffBookingDateFilterRevised');
- Route::get('/users-data','EventController@getData');
+ Route::post('/users-data','EventController@getData');

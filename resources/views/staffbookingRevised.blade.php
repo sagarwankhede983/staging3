@@ -2,32 +2,21 @@
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" type="text/css" href="{{ url('/css/styles.css') }}" />
     <script type="text/javascript" src="{{ asset('/css/chartjs.js') }}"></script>
-    <!-- https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js -->
     <script type="text/javascript" src="{{ asset('/js/googlecalender.js') }}"></script>
-    <!-- https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/ui-lightness/jquery-ui.css -->
     <link rel="stylesheet" type="text/css" href="{{ url('/css/googlecalender.css') }}" />
-    <!-- https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js -->
-    <script type="text/javascript" src="{{ asset('/js/googlecalender.js') }}"></script>
-    <!-- https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js -->
-    <script type="text/javascript" src="{{ asset('/js/googlecalender.min.js') }}"></script>
-    {{-- @include('layouts.dataTablesRequiredJS') --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet">
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="{{ asset('css/jquery.dataTables.css') }}" />
-    <script type="text/javascript" src="{{ asset('js/jquery-3.6.0.min.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('js/jquery.dataTables.js') }}"></script>
-    <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet" />
-
+    @include('layouts.dataTablesRequiredJS')
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -35,19 +24,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
-
-
-
-    <link href="" rel="stylesheet" />
     <link rel="stylesheet" type="text/css"
         href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400&display=swap" />
     <style>
         .container1 {
             display: flex;
-            /* justify-content: space-between; */
+            justify-content: space-between;
             align-items: center;
         }
 
@@ -87,8 +71,6 @@
         .closebtn:hover {
             color: black;
         }
-
-
     </style>
 </head>
 
@@ -100,7 +82,7 @@
         @include('partials.leftmenubar')
         <div id="layoutSidenav_content">
             <main>
-                <div id="hello">
+                {{-- <div id="hello"> --}}
                     <div class="container-fluid">
                         <div class="container1"
                             style="margin-bottom:2%;margin-top: 2%;padding-left:1.5rem;padding-right:1.5rem">
@@ -311,11 +293,14 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                {{-- </div> --}}
             </main>
         </div>
     </div>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="../js/scripts.js"></script>
+
+    </script>
     <script>
         $(document).ready(function() {
             $('#datatable').DataTable({
@@ -356,7 +341,10 @@
                 ],
                 ajax: {
                     url: "{{ url('users-data') }}",
-                    type: "GET",
+                    type: "post",
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
                     data: function(d) {
                         d.param1 = document.getElementById("demodateF").value;
                         d.param2 = document.getElementById("demodateT").value;
@@ -847,7 +835,7 @@
                 $("#demodateT").datepicker({
                     dateFormat: 'mm-dd-yy',
                     beforeShow: function(input, inst) {
-                        var minDate = $("#demodateF").datepicker("getDate");
+                        minDate = new Date(document.getElementById("demodateF").value);
                         if (minDate) {
                             var maxDate = new Date(minDate);
                             maxDate.setFullYear(minDate.getFullYear() + 1);
@@ -892,8 +880,8 @@
         select.addEventListener("change", updateDates);
 
         // Initial update of the dates based on the default selected year
-        fromdate = document.getElementById("demodateF").value;
-        todate = document.getElementById("demodateT").value;
+        fromdate = new Date(document.getElementById("demodateF").value);
+        todate = new Date(document.getElementById("demodateT").value);
         if (fromdate.getFullYear() === year && todate.getFullYear() === year) {
             updateDates();
         }
