@@ -165,14 +165,7 @@ $tdate = date('m-d-Y');
                     Gallery
                 </a> -->
                 {{-- Code Added On 02-01-2024 --}}
-                {{-- <a class="nav-link" href="/fromDashboardStaffBooking">
-                    <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
-                    Staff Booking
-                </a> --}}
-                <a class="nav-link" href="/fromDashboardStaffBookingRevised">
-                    <div class="sb-nav-link-icon"><i class="fas fa-file-alt"></i></div>
-                    Staff Booking
-                </a>
+
 
                 <a class="nav-link collapsed" href="#" data-toggle="collapse"
                     data-target="#collapseItemOption" aria-expanded="false" aria-controls="collapseLayouts">
@@ -189,7 +182,7 @@ $tdate = date('m-d-Y');
                         if($user_role_session!="Admin")
                         {
                           ?> <a class="nav-link" href="/dailyEmailSetup">Scheduler Email Setup</a>
-                          <?php } ?>
+                        <?php } ?>
                         <a class="nav-link" href="/getItemListFromMater"> Item List</a>
                     </nav>
                 </div>
@@ -197,7 +190,7 @@ $tdate = date('m-d-Y');
                 <a class="nav-link collapsed" href="#" data-toggle="collapse"
                     data-target="#collapseCustomersOption" aria-expanded="false" aria-controls="collapseLayouts">
                     <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
-                    Customers
+                    Reports
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
                 <div class="collapse" id="collapseCustomersOption" aria-labelledby="headingOne"
@@ -210,6 +203,12 @@ $tdate = date('m-d-Y');
                         <a class="nav-link" href="/cateringRoomNoNightsBlank">Catering-Room Reservation List</a>
                         <a class="nav-link" href="/catRoomReservationOnCalendar">Catering-Room Reservation
                             Calendar</a>
+                        <a class="nav-link" href="/fromDashboardStaffBookingRevised">
+                            Catering Staff Booking
+                        </a>
+                        <a class="nav-link" href="/fromDashboardPMSStaffBookingRevised">
+                            PMS Staff Booking
+                        </a>
                     </nav>
                 </div>
 

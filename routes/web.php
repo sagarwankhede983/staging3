@@ -138,3 +138,6 @@ Route::get('/getSheduleFilterR/{fromdate}/{todate}/{guide_id}/{hunt_type}/{flag}
 
  Route::get('/fromDashboardStaffBookingRevised', 'EventController@StaffBookingRevised');
  Route::post('/users-data','EventController@getData');
+
+ Route::get('/fromDashboardPMSStaffBookingRevised', 'EventController@PMSStaffBookingRevised');
+ Route::post('/users-dataPMS','EventController@getDataPMS');

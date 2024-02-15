@@ -1124,20 +1124,8 @@ class EventController extends Controller
         $tempTdayDate = explode("-", $todayDate);
         $fromdate = $tempTdayDate[0] . "-" . "01" . "-" . "01";
         $todate = $tempTdayDate[0] . "-" . "12" . "-" . "31";
-        // $fromdate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "01";
-        // $todate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "31";
         $value = session()->get('id');
         if ($value != "") {
-
-            $data = DB::select("select vce.*,TO_CHAR(vce.start_datetime,'HH:MM AM') Event_Time_Start,TO_CHAR(vce.end_datetime,'HH:MM AM') Event_Time_End,vcs.*,vc.*
-            FROM DEV.VR_CAT_EVENT vce
-            inner join dev.vr_cat_sales vcs on vce.event_id=vcs.folio_id
-            inner join dev.vr_customers vc on vc.customer_id=vcs.folio_customer_id
-            where TO_CHAR(vce.START_DATETIME,'YYYY-MM-DD') between '$fromdate' and '$todate' and ROWNUM<10
-            order by vce.name");
-
-            $data_ar = json_decode(json_encode($data), true);
-            // dd($data_ar);
             $todayDate = date('m-d-Y');
             $tempTdayDate = explode("-", $fromdate);
             $fromdate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
@@ -1145,7 +1133,7 @@ class EventController extends Controller
             $tempTdayDate = explode("-", $todate);
             $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
             $year = Date('Y');
-            return view('staffbookingRevised', compact('data_ar', 'todayDate', 'fromdate', 'todate', 'year'));
+            return view('staffbookingRevised', compact('todayDate', 'fromdate', 'todate', 'year'));
         }
     }
 
@@ -1183,8 +1171,8 @@ class EventController extends Controller
         $events =  DB::table('dev.vr_cat_event as vce')
             ->select(
                 'vce.*',
-                DB::raw("TO_CHAR(vce.start_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_Start"),
-                DB::raw("TO_CHAR(vce.end_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_End"),
+                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
                 'vcs.folio_id',
                 'vcs.folio_subtotal',
                 'vcs.folio_surcharges',
@@ -1228,8 +1216,8 @@ class EventController extends Controller
         $totalFilter =  DB::table('dev.vr_cat_event as vce')
             ->select(
                 'vce.*',
-                DB::raw("TO_CHAR(vce.start_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_Start"),
-                DB::raw("TO_CHAR(vce.end_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_End"),
+                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
                 'vcs.folio_id',
                 'vcs.folio_subtotal',
                 'vcs.folio_surcharges',
@@ -1277,8 +1265,221 @@ class EventController extends Controller
         $arrData =  DB::table('dev.vr_cat_event as vce')
             ->select(
                 'vce.*',
-                DB::raw("TO_CHAR(vce.start_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_Start"),
-                DB::raw("TO_CHAR(vce.end_datetime, 'YYYY-MM-DD HH:MI AM') AS Event_Time_End"),
+                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
+                'vcs.folio_id',
+                'vcs.folio_subtotal',
+                'vcs.folio_surcharges',
+                'vcs.folio_total',
+                'vcs.folio_payments',
+                'vcs.folio_balance',
+                'vcs.folio_settled',
+                'vcs.folio_open_date',
+                'vcs.folio_close_date',
+                'vcs.folio_operating_day',
+                'vcs.folio_staff_id',
+                'vcs.folio_customer_id',
+                'vcs.folio_location',
+                'vcs.folio_item_id',
+                'vcs.item_id',
+                'vcs.item_name',
+                'vcs.price',
+                'vcs.qty',
+                'vcs.discount',
+                'vcs.disc_type',
+                'vcs.ext_price',
+                'vcs.price_with_surcharges',
+                'vcs.item_charge_code',
+                'vcs.item_staff_id',
+                'vcs.item_txn_date',
+                'vcs.item_customer_id',
+                'vcs.cost_at_purchase',
+                'vcs.deferred',
+                'vcs.folio_item_detail_id',
+                'vcs.detail_charge_code',
+                'vcs.has_value',
+                'vcs.charge_code_amount',
+                'vcs.est_arrival_date'
+            )
+            ->join('dev.vr_cat_sales as vcs', 'vce.event_id', '=', 'vcs.folio_id')
+            ->join('dev.vr_customers as vc', 'vc.customer_id', '=', 'vcs.folio_customer_id')
+            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+
+        $arrData = $arrData->skip($start)->take($rowPerPage);
+        // $arrData = $arrData->orderBy($columnName, $columnSortOrder);
+        if (!empty($searchValue)) {
+            $arrData = $arrData->where('vce.event_id', 'like', '%' . $searchValue . '%');
+            $arrData = $arrData->orWhere('vce.group_folio_id', 'like', '%' . $searchValue . '%');
+        }
+
+        $arrData = $arrData->get();
+
+        $response = array(
+            "draw" => intval($draw),
+            "recordsTotal" => $total,
+            "recordsFiltered" => $totalFilter,
+            "data" => $arrData,
+        );
+
+        return response()->json($response);
+    }
+
+    public function PMSStaffBookingRevised()
+    {
+        // dd("Inside PMS");
+        $todayDate = date('Y-m-d');
+        $fromdate = $todayDate;
+        $todate = $todayDate;
+        $tempTdayDate = explode("-", $todayDate);
+        $fromdate = $tempTdayDate[0] . "-" . "01" . "-" . "01";
+        $todate = $tempTdayDate[0] . "-" . "12" . "-" . "31";
+        $fromdate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "01";
+        $todate = $tempTdayDate[0] . "-" . $tempTdayDate[1] . "-" . "31";
+
+
+        $value = session()->get('id');
+        if ($value != "") {
+            $todayDate = date('m-d-Y');
+            $tempTdayDate = explode("-", $fromdate);
+            $fromdate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+
+            $tempTdayDate = explode("-", $todate);
+            $todate = $tempTdayDate[1] . "-" . $tempTdayDate[2] . "-" . $tempTdayDate[0];
+            $year = Date('Y');
+            return view('pmsstaffbooking', compact('todayDate', 'fromdate', 'todate', 'year'));
+        }
+    }
+
+
+    public function getDataPMS(Request $request)
+    {
+
+        $draw                 =         $request->get('draw'); // Internal use
+        $start                 =         $request->get("start"); // where to start next records for pagination
+        $rowPerPage         =         $request->get("length"); // How many recods needed per page for pagination
+
+        $orderArray        =         $request->get('order');
+        $columnNameArray     =         $request->get('columns'); // It will give us columns array
+
+        $searchArray         =         $request->get('search');
+        $columnIndex         =         $orderArray[0]['column'];  // This will let us know,
+        // which column index should be sorted
+        // 0 = id, 1 = name, 2 = email , 3 = created_at
+
+        $columnName         =         $columnNameArray[$columnIndex]['data']; // Here we will get column name,
+        // Base on the index we get
+
+        $columnSortOrder     =         $orderArray[0]['dir']; // This will get us order direction(ASC/DESC)
+        $searchValue         =         $searchArray['value']; // This is search value
+
+
+        // $fromdate = date('Y-m-d', strtotime('2023-01-01'));
+        // $todate = date('Y-m-d', strtotime('2023-12-31'));
+        $fromdate = $request->input('param1');
+        $todate = $request->input('param2');
+        $tempTdayDate = explode("-", $fromdate);
+        $fromdate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+        $tempTdayDate = explode("-", $todate);
+        $todate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
+        $events =  DB::table('dev.vr_cat_event as vce')
+            ->select(
+                'vce.*',
+                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
+                'vcs.folio_id',
+                'vcs.folio_subtotal',
+                'vcs.folio_surcharges',
+                'vcs.folio_total',
+                'vcs.folio_payments',
+                'vcs.folio_balance',
+                'vcs.folio_settled',
+                'vcs.folio_open_date',
+                'vcs.folio_close_date',
+                'vcs.folio_operating_day',
+                'vcs.folio_staff_id',
+                'vcs.folio_customer_id',
+                'vcs.folio_location',
+                'vcs.folio_item_id',
+                'vcs.item_id',
+                'vcs.item_name',
+                'vcs.price',
+                'vcs.qty',
+                'vcs.discount',
+                'vcs.disc_type',
+                'vcs.ext_price',
+                'vcs.price_with_surcharges',
+                'vcs.item_charge_code',
+                'vcs.item_staff_id',
+                'vcs.item_txn_date',
+                'vcs.item_customer_id',
+                'vcs.cost_at_purchase',
+                'vcs.deferred',
+                'vcs.folio_item_detail_id',
+                'vcs.detail_charge_code',
+                'vcs.has_value',
+                'vcs.charge_code_amount',
+                'vcs.est_arrival_date'
+            )
+            ->join('dev.vr_cat_sales as vcs', 'vce.event_id', '=', 'vcs.folio_id')
+            ->join('dev.vr_customers as vc', 'vc.customer_id', '=', 'vcs.folio_customer_id')
+            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+
+        $total = $events->count();
+
+        $totalFilter =  DB::table('dev.vr_cat_event as vce')
+            ->select(
+                'vce.*',
+                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
+                'vcs.folio_id',
+                'vcs.folio_subtotal',
+                'vcs.folio_surcharges',
+                'vcs.folio_total',
+                'vcs.folio_payments',
+                'vcs.folio_balance',
+                'vcs.folio_settled',
+                'vcs.folio_open_date',
+                'vcs.folio_close_date',
+                'vcs.folio_operating_day',
+                'vcs.folio_staff_id',
+                'vcs.folio_customer_id',
+                'vcs.folio_location',
+                'vcs.folio_item_id',
+                'vcs.item_id',
+                'vcs.item_name',
+                'vcs.price',
+                'vcs.qty',
+                'vcs.discount',
+                'vcs.disc_type',
+                'vcs.ext_price',
+                'vcs.price_with_surcharges',
+                'vcs.item_charge_code',
+                'vcs.item_staff_id',
+                'vcs.item_txn_date',
+                'vcs.item_customer_id',
+                'vcs.cost_at_purchase',
+                'vcs.deferred',
+                'vcs.folio_item_detail_id',
+                'vcs.detail_charge_code',
+                'vcs.has_value',
+                'vcs.charge_code_amount',
+                'vcs.est_arrival_date'
+            )
+            ->join('dev.vr_cat_sales as vcs', 'vce.event_id', '=', 'vcs.folio_id')
+            ->join('dev.vr_customers as vc', 'vc.customer_id', '=', 'vcs.folio_customer_id')
+            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+
+        if (!empty($searchValue)) {
+            $totalFilter = $totalFilter->where('vce.event_id', 'like', '%' . $searchValue . '%');
+            $totalFilter = $totalFilter->orWhere('vce.group_folio_id', 'like', '%' . $searchValue . '%');
+        }
+        $totalFilter = $totalFilter->count();
+
+        $arrData =  DB::table('dev.vr_cat_event as vce')
+            ->select(
+                'vce.*',
+                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
+                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
                 'vcs.folio_id',
                 'vcs.folio_subtotal',
                 'vcs.folio_surcharges',

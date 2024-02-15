@@ -491,7 +491,7 @@ class UserManagmentController extends Controller
         }
         $final_query = "Select vc.customer_id,vps.folio_customer_id,vc.name,sum(vps.num_nights) as no_night from DEV.vr_customers vc inner join dev.VR_PMS_SALES vps on vc.Customer_id=vps.folio_customer_id " . $join_rateTyoeFilter . $join_customerIdFilter . " vps.num_nights>0 and (vps.arrival_date>='$tempFrom' and vps.arrival_date<='$tempTo' or vps.departure_date>='$tempFrom' and vps.departure_date<='$tempTo') group by vc.customer_id,vc.name,vps.folio_customer_id order by vc.customer_id";
         $resort_suit_customers_pms_no_nights = DB::Select($final_query);
-
+        // dd($final_query);
         $resort_suit_customers_pms_no_nights_ar = json_decode(json_encode($resort_suit_customers_pms_no_nights), true);
         $listOutCustomers = DB::Select("select customer_id,concat(concat(first_name,' '),last_name) as name from dev.vr_customers order by name ASC");
         $listOutCustomers_ar = json_decode(json_encode($listOutCustomers), true);
@@ -1106,8 +1106,27 @@ class UserManagmentController extends Controller
 
         $event_type_list = DB::Select("select distinct(cat_event_type) from dev.vr_cat_event where cat_event_type!=' ' order by cat_event_type ASC");
         $event_type_list_ar = json_decode(json_encode($event_type_list), true);
-        $market_code = DB::Select("Select distinct(vip_level) from dev.vr_customers where vip_level!=' ' order by vip_level ASC");
-        $market_code_ar = json_decode(json_encode($market_code), true);
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "kingranchum";
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        $sql = "SELECT market_code as vip_level from marketcodesetup";
+        $market_code_list = $conn->query($sql);
+        $market_code_list_ar[] = "";
+        if ($market_code_list->num_rows > 0) {
+            $i = 0;
+            while ($row = $market_code_list->fetch_assoc()) {
+                $market_code_list_ar[$i] = $row;
+                $i = $i + 1;
+            }
+        }
+        $conn->close();
+
+        $market_code_ar = json_decode(json_encode($market_code_list_ar), true);
 
         return view('onRequestCustomerDetails.catRoomsReservationOnCalendar', compact('calendar', 'todayDate', 'listOutCustomers_ar', 'cust_id', 'market_code_ar', 'customerIdFilter', 'marketCodeFilter', 'event_type_list_ar', 'eventTypeFilter'));
     }
@@ -1247,8 +1266,27 @@ class UserManagmentController extends Controller
 
         $event_type_list = DB::Select("select distinct(cat_event_type) from dev.vr_cat_event where cat_event_type!=' ' order by cat_event_type ASC");
         $event_type_list_ar = json_decode(json_encode($event_type_list), true);
-        $market_code = DB::Select("Select distinct(vip_level) from dev.vr_customers where vip_level!=' ' order by vip_level ASC");
-        $market_code_ar = json_decode(json_encode($market_code), true);
+        $servername = "localhost";
+        $username = "root";
+        $password = "";
+        $dbname = "kingranchum";
+        $conn = new mysqli($servername, $username, $password, $dbname);
+        if ($conn->connect_error) {
+            die("Connection failed: " . $conn->connect_error);
+        }
+        $sql = "SELECT market_code as vip_level from marketcodesetup";
+        $market_code_list = $conn->query($sql);
+        $market_code_list_ar[] = "";
+        if ($market_code_list->num_rows > 0) {
+            $i = 0;
+            while ($row = $market_code_list->fetch_assoc()) {
+                $market_code_list_ar[$i] = $row;
+                $i = $i + 1;
+            }
+        }
+        $conn->close();
+
+        $market_code_ar = json_decode(json_encode($market_code_list_ar), true);
 
         return view('onRequestCustomerDetails.catRoomsReservationOnCalendar', compact('calendar', 'todayDate', 'listOutCustomers_ar', 'cust_id', 'market_code_ar', 'customerIdFilter', 'marketCodeFilter', 'event_type_list_ar', 'eventTypeFilter'));
     }

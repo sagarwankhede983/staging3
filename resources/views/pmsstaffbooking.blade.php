@@ -123,7 +123,7 @@
 
                     <div class="card" style="height: auto !important; margin-top: 1%">
                         <div class="card-header">
-                            {{ trans('Catering Staff Booking') }}
+                            {{ trans('PMS Staff Booking') }}
                         </div>
                         <div class="card-body">
                             <div class="table-wrapper">
@@ -214,28 +214,21 @@
                 buttons: [{
                         extend: 'copy',
                         filename: function() {
-                            return 'StaffBookingData_' + new Date().toLocaleString();
+                            return 'PMSStaffBookingData_' + new Date().toLocaleString();
                         }
                     },
                     {
                         extend: 'csv',
                         filename: function() {
-                            return 'StaffBookingData_' + new Date().toLocaleString();
+                            return 'PMSStaffBookingData_' + new Date().toLocaleString();
                         }
                     },
                     {
                         extend: 'excel',
                         filename: function() {
-                            return 'StaffBookingData_' + new Date().toLocaleString();
+                            return 'PMSStaffBookingData_' + new Date().toLocaleString();
                         }
                     },
-                    // {
-                    //     extend: 'pdf',
-                    //     filename: 'StaffBookingData',
-                    //     exportOptions: {
-                    //         columns: ':all' // Include only visible columns in the PDF export
-                    //     }
-                    // },
                     {
                         extend: 'print',
                         filename: function() {
@@ -244,7 +237,7 @@
                     }
                 ],
                 ajax: {
-                    url: "{{ url('users-data') }}",
+                    url: "{{ url('users-dataPMS') }}",
                     type: "post",
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -398,321 +391,6 @@
                     {
                         data: 'est_arrival_date'
                     }
-                    // {
-                    //     data: 'cat_sales_stage'
-                    // },
-                    // {
-                    //     data: 'folio_lock_datetime'
-                    // },
-                    // {
-                    //     data: 'tax_exempt_type'
-                    // },
-                    // {
-                    //     data: 'last_modified_date'
-                    // },
-                    // {
-                    //     data: 'item_type'
-                    // },
-                    // {
-                    //     data: 'package_item'
-                    // },
-                    // {
-                    //     data: 'package_order'
-                    // },
-                    // {
-                    //     data: 'market_code'
-                    // },
-                    // {
-                    //     data: 'item_desc'
-                    // },
-                    // {
-                    //     data: 'customer_id'
-                    // },
-                    // {
-                    //     data: 'first_name'
-                    // },
-                    // {
-                    //     data: 'last_name'
-                    // },
-                    // {
-                    //     data: 'company_name'
-                    // },
-                    // {
-                    //     data: 'salutation'
-                    // },
-                    // {
-                    //     data: 'address'
-                    // },
-                    // {
-                    //     data: 'address_line_2'
-                    // },
-                    // {
-                    //     data: 'city'
-                    // },
-                    // {
-                    //     data: 'state_prov'
-                    // },
-                    // {
-                    //     data: 'postal_code'
-                    // },
-                    // {
-                    //     data: 'country'
-                    // },
-                    // {
-                    //     data: 'home_phone'
-                    // },
-                    // {
-                    //     data: 'work_phone'
-                    // },
-                    // {
-                    //     data: 'work_ext'
-                    // },
-                    // {
-                    //     data: 'other_phone'
-                    // },
-                    // {
-                    //     data: 'fax_number'
-                    // },
-                    // {
-                    //     data: 'main_phone'
-                    // },
-                    // {
-                    //     data: 'phone_main'
-                    // },
-                    // {
-                    //     data: 'email_address'
-                    // },
-                    // {
-                    //     data: 'customer_since'
-                    // },
-                    // {
-                    //     data: 'birth_date'
-                    // },
-                    // {
-                    //     data: 'gender'
-                    // },
-                    // {
-                    //     data: 'created_in_app'
-                    // },
-                    // {
-                    //     data: 'total_purchased'
-                    // },
-                    // {
-                    //     data: 'cat_purchased'
-                    // },
-                    // {
-                    //     data: 'glf_purchased'
-                    // },
-                    // {
-                    //     data: 'fit_purchased'
-                    // },
-                    // {
-                    //     data: 'pos_purchased'
-                    // },
-                    // {
-                    //     data: 'pms_purchased'
-                    // },
-                    // {
-                    //     data: 'ret_purchased'
-                    // },
-                    // {
-                    //     data: 'ski_purchased'
-                    // },
-                    // {
-                    //     data: 'spa_purchased'
-                    // },
-                    // {
-                    //     data: 'spa_products'
-                    // },
-                    // {
-                    //     data: 'spa_services'
-                    // },
-                    // {
-                    //     data: 'occupation'
-                    // },
-                    // {
-                    //     data: 'is_group'
-                    // },
-                    // {
-                    //     data: 'group_id'
-                    // },
-                    // {
-                    //     data: 'relationship'
-                    // },
-                    // {
-                    //     data: 'source'
-                    // },
-                    // {
-                    //     data: 'referred_by_id'
-                    // },
-                    // {
-                    //     data: 'approved_by'
-                    // },
-                    // {
-                    //     data: 'direct_bill'
-                    // },
-                    // {
-                    //     data: 'market_source'
-                    // },
-                    // {
-                    //     data: 'customer_type'
-                    // },
-                    // {
-                    //     data: 'created_in_loc'
-                    // },
-                    // {
-                    //     data: 'no_call'
-                    // },
-                    // {
-                    //     data: 'no_mail'
-                    // },
-                    // {
-                    //     data: 'no_email'
-                    // },
-                    // {
-                    //     data: 'source_cust_id'
-                    // },
-                    // {
-                    //     data: 'old_cat_purchased'
-                    // },
-                    // {
-                    //     data: 'old_glf_purchased'
-                    // },
-                    // {
-                    //     data: 'old_fit_purchased'
-                    // },
-                    // {
-                    //     data: 'old_pos_purchased'
-                    // },
-                    // {
-                    //     data: 'old_pms_purchased'
-                    // },
-                    // {
-                    //     data: 'old_ski_purchased'
-                    // },
-                    // {
-                    //     data: 'old_spa_purchased'
-                    // },
-                    // {
-                    //     data: 'old_spa_products'
-                    // },
-                    // {
-                    //     data: 'old_spa_services'
-                    // },
-                    // {
-                    //     data: 'created_date'
-                    // },
-                    // {
-                    //     data: 'create_staff_id'
-                    // },
-                    // {
-                    //     data: 'change_staff_id'
-                    // },
-                    // {
-                    //     data: 'customer_code'
-                    // },
-                    // {
-                    //     data: 'vip_level'
-                    // },
-                    // {
-                    //     data: 'default_discount'
-                    // },
-                    // {
-                    //     data: 'default_discount_exp'
-                    // },
-                    // {
-                    //     data: 'default_discount_eff'
-                    // },
-                    // {
-                    //     data: 'exclude_loyalty'
-                    // },
-                    // {
-                    //     data: 'cc_type'
-                    // },
-                    // {
-                    //     data: 'cc_expiry'
-                    // },
-                    // {
-                    //     data: 'other_address'
-                    // },
-                    // {
-                    //     data: 'other_address_line_2'
-                    // },
-                    // {
-                    //     data: 'other_city'
-                    // },
-                    // {
-                    //     data: 'other_state_prov'
-                    // },
-                    // {
-                    //     data: 'other_postal_code'
-                    // },
-                    // {
-                    //     data: 'other_country'
-                    // },
-                    // {
-                    //     data: 'source_iface'
-                    // },
-                    // {
-                    //     data: 'source_sys_id'
-                    // },
-                    // {
-                    //     data: 'source_sys_name'
-                    // },
-                    // {
-                    //     data: 'language'
-                    // },
-                    // {
-                    //     data: 'last_visit_date'
-                    // },
-                    // {
-                    //     data: 'demographic'
-                    // },
-                    // {
-                    //     data: 'default_player_type'
-                    // },
-                    // {
-                    //     data: 'all_customer_guid'
-                    // },
-                    // {
-                    //     data: 'cc_change_date'
-                    // },
-                    // {
-                    //     data: 'send_method'
-                    // },
-                    // {
-                    //     data: 'club_prospect'
-                    // },
-                    // {
-                    //     data: 'club_reference'
-                    // },
-                    // {
-                    //     data: 'home_country_code'
-                    // },
-                    // {
-                    //     data: 'work_country_code'
-                    // },
-                    // {
-                    //     data: 'mobile_country_code'
-                    // },
-                    // {
-                    //     data: 'other_country_code'
-                    // },
-                    // {
-                    //     data: 'main_country_code'
-                    // },
-                    // {
-                    //     data: 'mobile_phone'
-                    // },
-                    // {
-                    //     data: 'club_activation_date'
-                    // },
-                    // {
-                    //     data: 'pms_num_visits'
-                    // },
-                    // {
-                    //     data: 'pms_old_num_visits'
-                    // }
                 ]
             });
         });
@@ -978,8 +656,6 @@
                 dataTable = $('#datatable').DataTable();
                 $('#datatable').addClass('processing');
                 dataTable.clear().draw();
-                // window.location = "/dateFilterStaffBookingRevised/" + btoa(fromdate) + "/" + btoa(todate) +
-                //     "/" + btoa(year);
             });
 
             $('#demodateT').on('change', function() {
@@ -989,18 +665,7 @@
                 var year = document.getElementById("dynamic_select");
                 dataTable = $('#datatable').DataTable();
                 dataTable.clear().draw();
-
-                // window.location = "/dateFilterStaffBookingRevised/" + btoa(fromdate) + "/" + btoa(todate) +
-                //     "/" + btoa(year);
             });
-
-            // $('#download').on('click', function() {
-            //     var fromdate = document.getElementById("demodateF").value;
-            //     var todate = document.getElementById("demodateT").value;
-            //     dataTable = $('#datatable').DataTable();
-            //     dataTable.draw();
-            //     // window.location = "/downloadexcel/" + btoa(fromdate) + "/" + btoa(todate);
-            // });
         });
 
         function calculateToDate(fromdate, yearsToAdd) {
