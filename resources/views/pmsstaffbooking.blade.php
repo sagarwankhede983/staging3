@@ -156,30 +156,107 @@
                                             <th>Folio Settled</th>
                                             <th>Folio Open Date</th>
                                             <th>Folio Close Date</th>
+                                            <th>Folio Note</th>
                                             <th>Folio Operating Day</th>
                                             <th>Folio Staff Id</th>
                                             <th>Folio Customer Id</th>
-                                            <th>Folio Location</th>
+                                            <th>Folio Status</th>
+                                            <th>PMS Rate Id</th>
+                                            <th>Arrival Date</th>
+                                            <th>Number of Nights</th>
+                                            <th>Departure Date</th>
+                                            <th>Number of Adults</th>
+                                            <th>Number of Youth</th>
+                                            <th>Number of Children</th>
+                                            <th>Number of ChildrenJ</th>
+                                            <th>Room Type</th>
+                                            <th>Room Number</th>
+                                            <th>Primary or Share</th>
+                                            <th>Is Group Folio</th>
+                                            <th>PMS Market Code</th>
+                                            <th>Is House</th>
+                                            <th>Check-in Date</th>
+                                            <th>Check-out Date</th>
+                                            <th>All Reservation Id</th>
+                                            <th>All Booking Agent Id</th>
+                                            <th>All Booking Agent Contact Id</th>
+                                            <th>Hide Rate Conf Letter</th>
+                                            <th>Hide Rate Reg Card</th>
+                                            {{-- <th>Folio Lock</th>
                                             <th>Folio Item Id</th>
                                             <th>Item Id</th>
                                             <th>Item Name</th>
                                             <th>Price</th>
-                                            <th>Qty</th>
+                                            <th>Quantity</th>
                                             <th>Discount</th>
-                                            <th>Disc Type</th>
-                                            <th>Ext Price</th>
+                                            <th>Discount Type</th>
+                                            <th>Extended Price</th>
                                             <th>Price With Surcharges</th>
                                             <th>Item Charge Code</th>
                                             <th>Item Staff Id</th>
-                                            <th>Item Txn Date</th>
+                                            <th>Item Transaction Date</th>
+                                            <th>Item Operating Day</th>
                                             <th>Item Customer Id</th>
                                             <th>Cost At Purchase</th>
                                             <th>Deferred</th>
+                                            <th>Item Reference</th>
                                             <th>Folio Item Detail Id</th>
                                             <th>Detail Charge Code</th>
                                             <th>Has Value</th>
                                             <th>Charge Code Amount</th>
-                                            <th>Est Arrival Date</th>
+                                            <th>Venue</th>
+                                            <th>Secondary Email Address</th>
+                                            <th>Do Not Move</th>
+                                            <th>No Posting</th>
+                                            <th>Rate Quote</th>
+                                            <th>Rate Net</th>
+                                            <th>Account Name</th> --}}
+                                            {{-- <th>Guarantee Type</th>
+                                            <th>Guarantee Note</th>
+                                            <th>Primary Folio Id</th>
+                                            <th>Parent Folio Id</th>
+                                            <th>Hold Date</th>
+                                            <th>Web Folio Id</th>
+                                            <th>Source System Name</th>
+                                            <th>Source Property Id</th>
+                                            <th>Source System Id</th>
+                                            <th>Stay Total Folio</th>
+                                            <th>Stay Total All Guests</th>
+                                            <th>No Show</th>
+                                            <th>App</th>
+                                            <th>App Folio Id</th>
+                                            <th>Sub Folio Id</th>
+                                            <th>Folio Lock Date Time</th>
+                                            <th>Key Number</th>
+                                            <th>Secondary Invoice Number</th>
+                                            <th>Posting Credit Limit</th>
+                                            <th>Billing</th>
+                                            <th>Tax Exempt Type</th>
+                                            <th>Last Modified Date</th>
+                                            <th>Adjustment Reason</th>
+                                            <th>Adjustment Note</th>
+                                            <th>Folio Contact Customer Id</th>
+                                            <th>Total Room Adults</th>
+                                            <th>Total Room Youth</th>
+                                            <th>Total Room Children</th>
+                                            <th>PMS Reservation Summary Id</th>
+                                            <th>PMS Date</th>
+                                            <th>All Customer Id</th>
+                                            <th>All Market Source</th>
+                                            <th>Group Id</th>
+                                            <th>PMS Folio Id</th>
+                                            <th>Arrival</th>
+                                            <th>Departure</th>
+                                            <th>Stay Over</th>
+                                            <th>Unexpected Arrival</th>
+                                            <th>Unexpected Departure</th>
+                                            <th>Unexpected Stay Over</th>
+                                            <th>Cancellation</th>
+                                            <th>Company</th>
+                                            <th>Walk-in</th>
+                                            <th>Total Guests</th>
+                                            <th>Total Rooms</th>
+                                            <th>Room Class</th> --}}
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -320,6 +397,9 @@
                         data: 'folio_close_date'
                     },
                     {
+                        data: 'folio_note'
+                    },
+                    {
                         data: 'folio_operating_day'
                     },
                     {
@@ -329,68 +409,296 @@
                         data: 'folio_customer_id'
                     },
                     {
-                        data: 'folio_location'
+                        data: 'folio_status'
                     },
                     {
-                        data: 'folio_item_id'
+                        data: 'pms_rate_id'
                     },
                     {
-                        data: 'item_id'
+                        data: 'arrival_date'
                     },
                     {
-                        data: 'item_name'
+                        data: 'num_nights'
                     },
                     {
-                        data: 'price'
+                        data: 'departure_date'
                     },
                     {
-                        data: 'qty'
+                        data: 'num_adults'
                     },
                     {
-                        data: 'discount'
+                        data: 'num_youth'
                     },
                     {
-                        data: 'disc_type'
+                        data: 'num_children'
                     },
                     {
-                        data: 'ext_price'
+                        data: 'num_childrenj'
                     },
                     {
-                        data: 'price_with_surcharges'
+                        data: 'room_type'
                     },
                     {
-                        data: 'item_charge_code'
+                        data: 'room_number'
                     },
                     {
-                        data: 'item_staff_id'
+                        data: 'primary_or_share'
                     },
                     {
-                        data: 'item_txn_date'
+                        data: 'is_group_folio'
                     },
                     {
-                        data: 'item_customer_id'
+                        data: 'pms_market_code'
                     },
                     {
-                        data: 'cost_at_purchase'
+                        data: 'is_house'
                     },
                     {
-                        data: 'deferred'
+                        data: 'checkin_date'
                     },
                     {
-                        data: 'folio_item_detail_id'
+                        data: 'checkout_date'
                     },
                     {
-                        data: 'detail_charge_code'
+                        data: 'all_reservation_id'
                     },
                     {
-                        data: 'has_value'
+                        data: 'all_booking_agent_id'
                     },
                     {
-                        data: 'charge_code_amount'
+                        data: 'all_booking_agent_contact_id'
                     },
                     {
-                        data: 'est_arrival_date'
+                        data: 'hiderate_conf_letter'
+                    },
+                    {
+                        data: 'hiderate_reg_card'
                     }
+                    // {
+                    //     data: 'folio_lock'
+                    // },
+                    // {
+                    //     data: 'folio_item_id'
+                    // },
+                    // {
+                    //     data: 'item_id'
+                    // },
+                    // {
+                    //     data: 'item_name'
+                    // },
+                    // {
+                    //     data: 'price'
+                    // },
+                    // {
+                    //     data: 'qty'
+                    // },
+                    // {
+                    //     data: 'discount'
+                    // },
+                    // {
+                    //     data: 'disc_type'
+                    // },
+                    // {
+                    //     data: 'ext_price'
+                    // },
+                    // {
+                    //     data: 'price_with_surcharges'
+                    // },
+                    // {
+                    //     data: 'item_charge_code'
+                    // },
+                    // {
+                    //     data: 'item_staff_id'
+                    // },
+                    // {
+                    //     data: 'item_txn_date'
+                    // },
+                    // {
+                    //     data: 'item_operating_day'
+                    // },
+                    // {
+                    //     data: 'item_customer_id'
+                    // },
+                    // {
+                    //     data: 'cost_at_purchase'
+                    // },
+                    // {
+                    //     data: 'deferred'
+                    // },
+                    // {
+                    //     data: 'item_reference'
+                    // },
+                    // {
+                    //     data: 'folio_item_detail_id'
+                    // },
+                    // {
+                    //     data: 'detail_charge_code'
+                    // },
+                    // {
+                    //     data: 'has_value'
+                    // },
+                    // {
+                    //     data: 'charge_code_amount'
+                    // },
+                    // {
+                    //     data: 'venue'
+                    // },
+                    // {
+                    //     data: 'sec_email_address'
+                    // },
+                    // {
+                    //     data: 'do_not_move'
+                    // },
+                    // {
+                    //     data: 'no_posting'
+                    // },
+                    // {
+                    //     data: 'rate_quote'
+                    // },
+                    // {
+                    //     data: 'rate_net'
+                    // },
+                    // {
+                    //     data: 'account_name'
+                    // }
+                    // {
+                    //     data: 'guarantee_type'
+                    // },
+                    // {
+                    //     data: 'guarantee_note'
+                    // },
+                    // {
+                    //     data: 'primary_folio_id'
+                    // },
+                    // {
+                    //     data: 'parent_folio_id'
+                    // },
+                    // {
+                    //     data: 'hold_date'
+                    // },
+                    // {
+                    //     data: 'web_folio_id'
+                    // },
+                    // {
+                    //     data: 'source_sys_name'
+                    // },
+                    // {
+                    //     data: 'source_property_id'
+                    // },
+                    // {
+                    //     data: 'source_sys_id'
+                    // },
+                    // {
+                    //     data: 'stay_total_folio'
+                    // },
+                    // {
+                    //     data: 'stay_total_all_guests'
+                    // },
+                    // {
+                    //     data: 'no_show'
+                    // },
+                    // {
+                    //     data: 'app'
+                    // },
+                    // {
+                    //     data: 'app_folio_id'
+                    // },
+                    // {
+                    //     data: 'sub_folio_id'
+                    // },
+                    // {
+                    //     data: 'folio_lock_datetime'
+                    // },
+                    // {
+                    //     data: 'key_number'
+                    // },
+                    // {
+                    //     data: 'sec_invoice_num'
+                    // },
+                    // {
+                    //     data: 'posting_credit_limit'
+                    // },
+                    // {
+                    //     data: 'billing'
+                    // },
+                    // {
+                    //     data: 'tax_exempt_type'
+                    // },
+                    // {
+                    //     data: 'last_modified_date'
+                    // },
+                    // {
+                    //     data: 'adj_reason'
+                    // },
+                    // {
+                    //     data: 'adj_note'
+                    // },
+                    // {
+                    //     data: 'folio_contact_cust_id'
+                    // },
+                    // {
+                    //     data: 'total_room_adults'
+                    // },
+                    // {
+                    //     data: 'total_room_youth'
+                    // },
+                    // {
+                    //     data: 'total_room_children'
+                    // },
+                    // {
+                    //     data: 'pms_reservation_summary_id'
+                    // },
+                    // {
+                    //     data: 'pms_date'
+                    // },
+                    // {
+                    //     data: 'all_customer_id'
+                    // },
+                    // {
+                    //     data: 'all_market_source'
+                    // },
+                    // {
+                    //     data: 'group_id'
+                    // },
+                    // {
+                    //     data: 'pms_folio_id'
+                    // },
+                    // {
+                    //     data: 'arrival'
+                    // },
+                    // {
+                    //     data: 'departure'
+                    // },
+                    // {
+                    //     data: 'stay_over'
+                    // },
+                    // {
+                    //     data: 'unexpected_arrival'
+                    // },
+                    // {
+                    //     data: 'unexpected_departure'
+                    // },
+                    // {
+                    //     data: 'unexpected_stay_over'
+                    // },
+                    // {
+                    //     data: 'cancellation'
+                    // },
+                    // {
+                    //     data: 'comp'
+                    // },
+                    // {
+                    //     data: 'walk_in'
+                    // },
+                    // {
+                    //     data: 'total_guests'
+                    // },
+                    // {
+                    //     data: 'total_rooms'
+                    // },
+                    // {
+                    //     data: 'room_class'
+                    // }
                 ]
             });
         });
@@ -466,6 +774,43 @@
         todate = new Date(document.getElementById("demodateT").value);
         if (fromdate.getFullYear() === year && todate.getFullYear() === year) {
             updateDates();
+        }
+
+        $(document).ready(function() {
+            $('#demodateF').on('change', function() {
+                updateYearFilterFromDates();
+            });
+
+            $('#demodateT').on('change', function() {
+                updateYearFilterFromDates();
+            });
+
+            $('#dynamic_select').on('change', function() {
+                updateDatesFromYearFilter();
+            });
+        });
+
+        function updateYearFilterFromDates() {
+            var fromDate = document.getElementById("demodateF").value;
+            var toDate = document.getElementById("demodateT").value;
+
+            // Extract years from dates
+            var fromYear = new Date(fromDate).getFullYear();
+            var toYear = new Date(toDate).getFullYear();
+
+            // Update year filter if it's not already updated
+            var yearSelect = document.getElementById("dynamic_select");
+            if (yearSelect.value != fromYear) {
+                yearSelect.value = fromYear;
+
+                // Trigger change event to update other elements dependent on the year filter
+                $(yearSelect).trigger('change');
+            }
+        }
+
+        function updateDatesFromYearFilter() {
+            var selectedYear = document.getElementById("dynamic_select").value;
+            $('#demodateF, #demodateT').trigger('change');
         }
     </script>
     <script>
@@ -682,7 +1027,7 @@
             var formattedDate = mm + '-' + dd + '-' + yyyy;
             return formattedDate;
         }
-    </script>
+            </script>
 
 </body>
 
