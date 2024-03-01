@@ -1377,190 +1377,101 @@ class EventController extends Controller
         $fromdate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
         $tempTdayDate = explode("-", $todate);
         $todate = $tempTdayDate[2] . "-" . $tempTdayDate[0] . "-" . $tempTdayDate[1];
-        $events =  DB::table('dev.vr_cat_event as vce')
+        $events = DB::table('dev.vr_customers as vc')
             ->select(
-                'vce.event_id',
-                'vce.group_folio_id',
-                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
-                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
-                'vce.qty_est',
-                'vce.qty_gtd',
-                'vce.qty_show',
-                'vce.qty_bill',
-                'vce.company_party_name',
-                'vce.room',
-                'vce.cat_event_type',
-                'vce.cat_room_setup',
-                'vce.start_datetime',
-                'vce.end_datetime',
-                'vce.name',
-                'vps.FOLIO_ID',
-                'vps.FOLIO_SUBTOTAL',
-                'vps.FOLIO_SURCHARGES',
-                'vps.FOLIO_TOTAL',
-                'vps.FOLIO_PAYMENTS',
-                'vps.FOLIO_BALANCE',
-                'vps.FOLIO_SETTLED',
-                'vps.FOLIO_OPEN_DATE',
-                'vps.FOLIO_CLOSE_DATE',
-                'vps.FOLIO_NOTE',
-                'vps.FOLIO_OPERATING_DAY',
-                'vps.FOLIO_STAFF_ID',
-                'vps.FOLIO_CUSTOMER_ID',
-                'vps.FOLIO_STATUS',
-                'vps.PMS_RATE_ID',
-                'vps.ARRIVAL_DATE',
-                'vps.NUM_NIGHTS',
-                'vps.DEPARTURE_DATE',
-                'vps.NUM_ADULTS',
-                'vps.NUM_YOUTH',
-                'vps.NUM_CHILDREN',
-                'vps.NUM_CHILDRENJ',
-                'vps.ROOM_TYPE',
-                'vps.ROOM_NUMBER',
-                'vps.PRIMARY_OR_SHARE',
-                'vps.IS_GROUP_FOLIO',
-                'vps.PMS_MARKET_CODE',
-                'vps.IS_HOUSE',
-                'vps.CHECKIN_DATE',
-                'vps.CHECKOUT_DATE',
-                'vps.ALL_RESERVATION_ID',
-                'vps.ALL_BOOKING_AGENT_ID',
-                'vps.ALL_BOOKING_AGENT_CONTACT_ID',
-                'vps.HIDERATE_CONF_LETTER',
-                'vps.HIDERATE_REG_CARD'
+                'vc.customer_id',
+                'vps.folio_customer_id',
+                'vc.name',
+                DB::raw("TO_CHAR(vps.checkin_date,'YYYY-MM-DD') AS checkin_date"),
+                DB::raw("TO_CHAR(vps.checkout_date,'YYYY-MM-DD') AS checkout_date"),
+                DB::raw("TO_CHAR(vps.arrival_date,'YYYY-MM-DD') AS arrival_date"),
+                DB::raw("TO_CHAR(vps.departure_date,'YYYY-MM-DD') AS departure_date"),
+                'vps.num_nights',
+                'vps.room_number',
+                'vps.room_type',
+                'vps.folio_id',
+                'vps.folio_status',
+                'vps.folio_settled',
+                'vps.folio_staff_id',
+                'vps.account_name',
+                'vps.billing'
             )
-            ->join('dev.vr_pms_sales as vps', 'vce.event_id', '=', 'vps.folio_id')
-            ->join('dev.pms_reservation_summary as prs', 'prs.pms_folio_id', '=', 'vps.folio_id')
-            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+            ->join('dev.VR_PMS_SALES as vps', 'vc.Customer_id', '=', 'vps.folio_customer_id')
+            ->where('vps.num_nights', '>', 0)
+            ->where(function ($query) use ($fromdate, $todate) {
+                $query->whereBetween(DB::raw("TO_CHAR(vps.arrival_date, 'YYYY-MM-DD')"), [$fromdate, $todate])
+                    ->orWhereBetween(DB::raw("TO_CHAR(vps.departure_date, 'YYYY-MM-DD')"), [$fromdate, $todate]);
+            })
+            ->orderBy('vc.customer_id');
+
 
         $total = $events->count();
 
-        $totalFilter =  DB::table('dev.vr_cat_event as vce')
+        $totalFilter =  DB::table('dev.vr_customers as vc')
             ->select(
-                'vce.event_id',
-                'vce.group_folio_id',
-                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
-                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
-                'vce.qty_est',
-                'vce.qty_gtd',
-                'vce.qty_show',
-                'vce.qty_bill',
-                'vce.company_party_name',
-                'vce.room',
-                'vce.cat_event_type',
-                'vce.cat_room_setup',
-                'vce.start_datetime',
-                'vce.end_datetime',
-                'vce.name',
-                'vps.FOLIO_ID',
-                'vps.FOLIO_SUBTOTAL',
-                'vps.FOLIO_SURCHARGES',
-                'vps.FOLIO_TOTAL',
-                'vps.FOLIO_PAYMENTS',
-                'vps.FOLIO_BALANCE',
-                'vps.FOLIO_SETTLED',
-                'vps.FOLIO_OPEN_DATE',
-                'vps.FOLIO_CLOSE_DATE',
-                'vps.FOLIO_NOTE',
-                'vps.FOLIO_OPERATING_DAY',
-                'vps.FOLIO_STAFF_ID',
-                'vps.FOLIO_CUSTOMER_ID',
-                'vps.FOLIO_STATUS',
-                'vps.PMS_RATE_ID',
-                'vps.ARRIVAL_DATE',
-                'vps.NUM_NIGHTS',
-                'vps.DEPARTURE_DATE',
-                'vps.NUM_ADULTS',
-                'vps.NUM_YOUTH',
-                'vps.NUM_CHILDREN',
-                'vps.NUM_CHILDRENJ',
-                'vps.ROOM_TYPE',
-                'vps.ROOM_NUMBER',
-                'vps.PRIMARY_OR_SHARE',
-                'vps.IS_GROUP_FOLIO',
-                'vps.PMS_MARKET_CODE',
-                'vps.IS_HOUSE',
-                'vps.CHECKIN_DATE',
-                'vps.CHECKOUT_DATE',
-                'vps.ALL_RESERVATION_ID',
-                'vps.ALL_BOOKING_AGENT_ID',
-                'vps.ALL_BOOKING_AGENT_CONTACT_ID',
-                'vps.HIDERATE_CONF_LETTER',
-                'vps.HIDERATE_REG_CARD'
+                'vc.customer_id',
+                'vps.folio_customer_id',
+                'vc.name',
+                DB::raw("TO_CHAR(vps.checkin_date,'YYYY-MM-DD') AS checkin_date"),
+                DB::raw("TO_CHAR(vps.checkout_date,'YYYY-MM-DD') AS checkout_date"),
+                DB::raw("TO_CHAR(vps.arrival_date,'YYYY-MM-DD') AS arrival_date"),
+                DB::raw("TO_CHAR(vps.departure_date,'YYYY-MM-DD') AS departure_date"),
+                'vps.num_nights',
+                'vps.room_number',
+                'vps.room_type',
+                'vps.folio_id',
+                'vps.folio_status',
+                'vps.folio_settled',
+                'vps.folio_staff_id',
+                'vps.account_name',
+                'vps.billing'
             )
-            ->join('dev.vr_pms_sales as vps', 'vce.event_id', '=', 'vps.folio_id')
-            ->join('dev.pms_reservation_summary as prs', 'prs.pms_folio_id', '=', 'vps.folio_id')
-            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+            ->join('dev.VR_PMS_SALES as vps', 'vc.Customer_id', '=', 'vps.folio_customer_id')
+            ->where('vps.num_nights', '>', 0)
+            ->where(function ($query) use ($fromdate, $todate) {
+                $query->whereBetween(DB::raw("TO_CHAR(vps.arrival_date, 'YYYY-MM-DD')"), [$fromdate, $todate])
+                    ->orWhereBetween(DB::raw("TO_CHAR(vps.departure_date, 'YYYY-MM-DD')"), [$fromdate, $todate]);
+            })
+            ->orderBy('vc.customer_id');
 
         if (!empty($searchValue)) {
-            $totalFilter = $totalFilter->where('vce.event_id', 'like', '%' . $searchValue . '%');
-            $totalFilter = $totalFilter->orWhere('vce.group_folio_id', 'like', '%' . $searchValue . '%');
+            $totalFilter = $totalFilter->where('vc.customer_id', 'like', '%' . $searchValue . '%');
+            $totalFilter = $totalFilter->orWhere('vps.folio_customer_id', 'like', '%' . $searchValue . '%');
         }
         $totalFilter = $totalFilter->count();
 
-        $arrData =  DB::table('dev.vr_cat_event as vce')
+        $arrData =  DB::table('dev.vr_customers as vc')
             ->select(
-                'vce.event_id',
-                'vce.group_folio_id',
-                DB::raw("TO_CHAR(vce.start_datetime, 'HH:MI AM') AS Event_Time_Start"),
-                DB::raw("TO_CHAR(vce.end_datetime, 'HH:MI AM') AS Event_Time_End"),
-                'vce.qty_est',
-                'vce.qty_gtd',
-                'vce.qty_show',
-                'vce.qty_bill',
-                'vce.company_party_name',
-                'vce.room',
-                'vce.cat_event_type',
-                'vce.cat_room_setup',
-                'vce.start_datetime',
-                'vce.end_datetime',
-                'vce.name',
-                'vps.FOLIO_ID',
-                'vps.FOLIO_SUBTOTAL',
-                'vps.FOLIO_SURCHARGES',
-                'vps.FOLIO_TOTAL',
-                'vps.FOLIO_PAYMENTS',
-                'vps.FOLIO_BALANCE',
-                'vps.FOLIO_SETTLED',
-                'vps.FOLIO_OPEN_DATE',
-                'vps.FOLIO_CLOSE_DATE',
-                'vps.FOLIO_NOTE',
-                'vps.FOLIO_OPERATING_DAY',
-                'vps.FOLIO_STAFF_ID',
-                'vps.FOLIO_CUSTOMER_ID',
-                'vps.FOLIO_STATUS',
-                'vps.PMS_RATE_ID',
-                'vps.ARRIVAL_DATE',
-                'vps.NUM_NIGHTS',
-                'vps.DEPARTURE_DATE',
-                'vps.NUM_ADULTS',
-                'vps.NUM_YOUTH',
-                'vps.NUM_CHILDREN',
-                'vps.NUM_CHILDRENJ',
-                'vps.ROOM_TYPE',
-                'vps.ROOM_NUMBER',
-                'vps.PRIMARY_OR_SHARE',
-                'vps.IS_GROUP_FOLIO',
-                'vps.PMS_MARKET_CODE',
-                'vps.IS_HOUSE',
-                'vps.CHECKIN_DATE',
-                'vps.CHECKOUT_DATE',
-                'vps.ALL_RESERVATION_ID',
-                'vps.ALL_BOOKING_AGENT_ID',
-                'vps.ALL_BOOKING_AGENT_CONTACT_ID',
-                'vps.HIDERATE_CONF_LETTER',
-                'vps.HIDERATE_REG_CARD'
+                'vc.customer_id',
+                'vps.folio_customer_id',
+                'vc.name',
+                DB::raw("TO_CHAR(vps.checkin_date,'YYYY-MM-DD') AS checkin_date"),
+                DB::raw("TO_CHAR(vps.checkout_date,'YYYY-MM-DD') AS checkout_date"),
+                DB::raw("TO_CHAR(vps.arrival_date,'YYYY-MM-DD') AS arrival_date"),
+                DB::raw("TO_CHAR(vps.departure_date,'YYYY-MM-DD') AS departure_date"),
+                'vps.num_nights',
+                'vps.room_number',
+                'vps.room_type',
+                'vps.folio_id',
+                'vps.folio_status',
+                'vps.folio_settled',
+                'vps.folio_staff_id',
+                'vps.account_name',
+                'vps.billing'
             )
-            ->join('dev.vr_pms_sales as vps', 'vce.event_id', '=', 'vps.folio_id')
-            ->join('dev.pms_reservation_summary as prs', 'prs.pms_folio_id', '=', 'vps.folio_id')
-            ->whereRaw("TO_CHAR(vce.START_DATETIME, 'YYYY-MM-DD') BETWEEN ? AND ?", [$fromdate, $todate]);
+            ->join('dev.VR_PMS_SALES as vps', 'vc.Customer_id', '=', 'vps.folio_customer_id')
+            ->where('vps.num_nights', '>', 0)
+            ->where(function ($query) use ($fromdate, $todate) {
+                $query->whereBetween(DB::raw("TO_CHAR(vps.arrival_date, 'YYYY-MM-DD')"), [$fromdate, $todate])
+                    ->orWhereBetween(DB::raw("TO_CHAR(vps.departure_date, 'YYYY-MM-DD')"), [$fromdate, $todate]);
+            })
+            ->orderBy('vc.customer_id');
 
         $arrData = $arrData->skip($start)->take($rowPerPage);
         // $arrData = $arrData->orderBy($columnName, $columnSortOrder);
         if (!empty($searchValue)) {
-            $arrData = $arrData->where('vce.event_id', 'like', '%' . $searchValue . '%');
-            $arrData = $arrData->orWhere('vce.group_folio_id', 'like', '%' . $searchValue . '%');
+            $arrData = $arrData->where('vc.customer_id', 'like', '%' . $searchValue . '%');
+            $arrData = $arrData->orWhere('vps.folio_customer_id', 'like', '%' . $searchValue . '%');
         }
         // dd($arrData);
         $arrData = $arrData->get();

@@ -214,25 +214,65 @@
                 buttons: [{
                         extend: 'copy',
                         filename: function() {
-                            return 'StaffBookingData_' + new Date().toLocaleString();
+                            var now = new Date();
+                            var year = now.getFullYear();
+                            var month = (now.getMonth() + 1).toString().padStart(2,
+                                '0'); // Month is zero-based
+                            var day = now.getDate().toString().padStart(2, '0');
+                            var hours = now.getHours().toString().padStart(2, '0');
+                            var minutes = now.getMinutes().toString().padStart(2, '0');
+                            var seconds = now.getSeconds().toString().padStart(2, '0');
+
+                            return 'StaffBookingData_' + year + month + day + hours + minutes +
+                                seconds;
                         }
                     },
                     {
                         extend: 'csv',
                         filename: function() {
-                            return 'StaffBookingData_' + new Date().toLocaleString();
+                            var now = new Date();
+                            var year = now.getFullYear();
+                            var month = (now.getMonth() + 1).toString().padStart(2,
+                                '0'); // Month is zero-based
+                            var day = now.getDate().toString().padStart(2, '0');
+                            var hours = now.getHours().toString().padStart(2, '0');
+                            var minutes = now.getMinutes().toString().padStart(2, '0');
+                            var seconds = now.getSeconds().toString().padStart(2, '0');
+
+                            return 'StaffBookingData_' + year + month + day + hours + minutes +
+                                seconds;
                         }
                     },
                     {
                         extend: 'excel',
                         filename: function() {
-                            return 'StaffBookingData_' + new Date().toLocaleString();
+                            var now = new Date();
+                            var year = now.getFullYear();
+                            var month = (now.getMonth() + 1).toString().padStart(2,
+                                '0'); // Month is zero-based
+                            var day = now.getDate().toString().padStart(2, '0');
+                            var hours = now.getHours().toString().padStart(2, '0');
+                            var minutes = now.getMinutes().toString().padStart(2, '0');
+                            var seconds = now.getSeconds().toString().padStart(2, '0');
+
+                            return 'StaffBookingData_' + year + month + day + hours + minutes +
+                                seconds;
                         }
                     },
                     {
                         extend: 'print',
                         filename: function() {
-                            return 'StaffBookingData_' + new Date().toLocaleString();
+                            var now = new Date();
+                            var year = now.getFullYear();
+                            var month = (now.getMonth() + 1).toString().padStart(2,
+                                '0'); // Month is zero-based
+                            var day = now.getDate().toString().padStart(2, '0');
+                            var hours = now.getHours().toString().padStart(2, '0');
+                            var minutes = now.getMinutes().toString().padStart(2, '0');
+                            var seconds = now.getSeconds().toString().padStart(2, '0');
+
+                            return 'StaffBookingData_' + year + month + day + hours + minutes +
+                                seconds;
                         }
                     }
                 ],
